@@ -1,0 +1,72 @@
+<idea-plugin>
+    <id>com.naixiaoxin.idea.hyperf</id>
+    <name>Hyperf</name>
+    <vendor email="group@hyperf.io" url="https://www.hyperf.io">Hyperf Team</vendor>
+
+    <description><![CDATA[
+      <h1>Hyperf Plugin</h1><br>
+    <br/>
+    <a href="https://github.com/qiqizjl/idea-plugin-hyperf/issues">Issues</a>
+    <br/>
+
+      <h2>Install</h2>
+      <ul>
+        <li>Install plugin and active it per Project under "Settings > Languages & Frameworks > PHP > Hyperf"</li>
+        <li>Configure root translation directory, if not using default file structure</li>
+        <li>(Enable autopopup for completion in plugin setting)</li>
+      </ul>
+      <br>
+
+      <h2>Features</h2>
+      <ul>
+        <li>PHP/Route: Controller completion and goto</li>
+        <li>PHP/Config: Config key indexer, completion and goto</li>
+        <li>PHP/Translation: Translation key indexer, completion and goto</li>
+      </ul>
+
+      <h2>Todo</h2>
+      <ul>
+        <li>More TestCase</li>
+      </ul>
+
+    ]]></description>
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <projectConfigurable instance="com.naixiaoxin.idea.hyperf.ui.HyperfProjectSettingsForm"
+                             id="Hyperf.SettingsForm"
+                             displayName="Hyperf"
+                             parentId="reference.webide.settings.project.settings.php"
+                             nonDefaultProject="true"
+        />
+        <completion.contributor language="any"
+                                implementationClass="fr.adrienbrault.idea.symfony2plugin.codeInsight.completion.CompletionContributor"/>
+        <gotoDeclarationHandler
+                implementation="fr.adrienbrault.idea.symfony2plugin.codeInsight.navigation.GotoHandler"/>
+
+        <projectService serviceImplementation="com.naixiaoxin.idea.hyperf.HyperfSettings"/>
+        <fileBasedIndex implementation="com.naixiaoxin.idea.hyperf.stub.ConfigKeyStubIndex"/>
+        <fileBasedIndex implementation="com.naixiaoxin.idea.hyperf.stub.TranslationKeyStubIndex" />
+
+        <!-- Add your extensions here -->
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
+
+    <idea-version since-build="173.4127"/>
+
+    <depends>com.jetbrains.php</depends>
+    <depends>com.intellij.modules.platform</depends>
+
+    <project-components>
+        <component>
+            <implementation-class>com.naixiaoxin.idea.hyperf.HyperfProjectComponent</implementation-class>
+        </component>
+    </project-components>
+</idea-plugin>
