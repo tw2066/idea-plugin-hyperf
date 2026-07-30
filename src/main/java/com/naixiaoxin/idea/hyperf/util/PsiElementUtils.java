@@ -18,11 +18,14 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
+ * PSI 元素辅助工具集。
+ *
  * @author Daniel Espendiller <daniel@espendiller.net>
  */
 public class PsiElementUtils {
     /**
      * getChildren fixed helper
+     * 通过 firstChild + nextSibling 链手动收集子元素（绕过 getChildren 在某些 PSI 上的缺陷）
      */
     static public PsiElement[] getChildrenFix(PsiElement psiElement) {
         PsiElement startElement = psiElement.getFirstChild();
@@ -40,6 +43,7 @@ public class PsiElementUtils {
         return psiElements.toArray(new PsiElement[psiElements.size()]);
     }
 
+    /** 去掉字符串两端的引号（单双引号都处理），null 原样返回 */
     @Nullable
     public static String trimQuote(@Nullable String text) {
 
@@ -48,6 +52,10 @@ public class PsiElementUtils {
         return text.replaceAll("^\"|\"$|\'|\'$", "");
     }
 
+    /**
+     * 判断元素是否位于指定函数调用的指定参数位置。
+     * 向上检查 元素 → ParameterList → FunctionReference 三层结构。
+     */
     public static boolean isFunctionReference(@NotNull PsiElement psiElement, @NotNull  String functionName,  int parameterIndex) {
 
         PsiElement parameterList = psiElement.getParent();
@@ -55,6 +63,7 @@ public class PsiElementUtils {
             return false;
         }
 
+        // 当前元素必须处于目标参数位
         ParameterBag index = PhpElementsUtil.getCurrentParameterIndex(psiElement);
         if(index == null || index.getIndex() != parameterIndex) {
             return false;
@@ -68,6 +77,7 @@ public class PsiElementUtils {
         return functionName.equals(((FunctionReference) functionCall).getName());
     }
 
+    /** 批量将 VirtualFile 转为 PsiFile（找不到的文件跳过） */
     @NotNull
     public static Collection<PsiFile> convertVirtualFilesToPsiFiles(@NotNull Project project, @NotNull Collection<VirtualFile> files) {
         Collection<PsiFile> psiFiles = new HashSet<>();

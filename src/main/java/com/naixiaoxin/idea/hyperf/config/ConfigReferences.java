@@ -27,8 +27,19 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+/**
+ * 配置键的补全与跳转。
+ *
+ * <p>覆盖两类调用场景：
+ * <ul>
+ *   <li>{@code \Hyperf\Contract\ConfigInterface::get()/has()} 方法调用的参数；</li>
+ *   <li>全局 {@code config()} 辅助函数的第一个参数。</li>
+ * </ul>
+ * 命中后提供配置键补全（来自 {@link ConfigKeyStubIndex} 索引）与跳转到定义位置。
+ */
 public class ConfigReferences implements GotoCompletionLanguageRegistrar {
 
+    /** 匹配 ConfigInterface 的 get/has 方法调用 */
     private static MethodMatcher.CallToSignature[] CONFIG = new MethodMatcher.CallToSignature[]{
             new MethodMatcher.CallToSignature("\\Hyperf\\Contract\\ConfigInterface", "get"),
             new MethodMatcher.CallToSignature("\\Hyperf\\Contract\\ConfigInterface", "has"),
@@ -48,10 +59,12 @@ public class ConfigReferences implements GotoCompletionLanguageRegistrar {
             }
 
             PsiElement parent = psiElement.getParent();
+            // ConfigInterface::get('key') / has('key')
             if (parent != null && MethodMatcher.getMatchedSignatureWithDepth(parent, CONFIG) != null) {
                 return new ConfigKeyProvider(parent);
             }
 
+            // config('key')
             if (parent != null && PhpElementsUtil.isFunctionReference(parent, 0, "config")) {
                 return new ConfigKeyProvider(parent);
             }
@@ -59,12 +72,14 @@ public class ConfigReferences implements GotoCompletionLanguageRegistrar {
         });
     }
 
+    /** 配置键的补全项与跳转目标提供者 */
     private static class ConfigKeyProvider extends GotoCompletionProvider {
 
         public ConfigKeyProvider(PsiElement element) {
             super(element);
         }
 
+        /** 从索引收集所有配置键，生成补全列表 */
         @NotNull
         @Override
         public Collection<LookupElement> getLookupElements() {
@@ -79,6 +94,7 @@ public class ConfigReferences implements GotoCompletionLanguageRegistrar {
             return lookupElements;
         }
 
+        /** 在含该键的配置文件中定位具体的键元素，作为跳转目标 */
         @NotNull
         @Override
         public Collection<PsiElement> getPsiTargets(StringLiteralExpression element) {
@@ -95,6 +111,7 @@ public class ConfigReferences implements GotoCompletionLanguageRegistrar {
                     return true;
                 }
 
+                // 重新遍历该配置文件的数组，找到键名与当前内容完全一致的键元素
                 psiFileTarget.acceptChildren(new ArrayReturnPsiRecursiveVisitor(ConfigFileUtil.matchConfigFile(getProject(), virtualFile).getKeyPrefix(), (key, psiKey, isRootElement) -> {
                     if (!isRootElement && key.equals(contents)) {
                         targets.add(psiKey);

@@ -30,8 +30,20 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+/**
+ * 翻译键的补全与跳转。
+ *
+ * <p>覆盖两类调用场景：
+ * <ul>
+ *   <li>{@code \Hyperf\Contract\TranslatorInterface::trans()} 方法调用的参数；</li>
+ *   <li>全局 {@code trans()} / {@code __()} 辅助函数的第一个参数。</li>
+ * </ul>
+ * 仅在项目安装了 hyperf/translation（vendor/hyperf/translation 存在）时启用。
+ * 跳转时优先返回当前配置语言目录下的定义。
+ */
 public class TranslationReferences implements GotoCompletionLanguageRegistrar {
 
+    /** 匹配 TranslatorInterface 的 trans 方法调用 */
     private static MethodMatcher.CallToSignature[] TRANSLATION_KEY = new MethodMatcher.CallToSignature[]{
             new MethodMatcher.CallToSignature("\\Hyperf\\Contract\\TranslatorInterface", "trans"),
     };
@@ -48,6 +60,7 @@ public class TranslationReferences implements GotoCompletionLanguageRegistrar {
                 return null;
             }
             // only install hyperf/translation
+            // 未安装翻译组件则不提供翻译键功能
             VirtualFile baseDir = psiElement.getProject().getBaseDir();
             if (baseDir == null) {
                 return null;
@@ -57,6 +70,7 @@ public class TranslationReferences implements GotoCompletionLanguageRegistrar {
                 return null;
             }
             PsiElement parent = psiElement.getParent();
+            // TranslatorInterface::trans('key') 或 trans('key') / __('key')
             if (parent != null && (
                     MethodMatcher.getMatchedSignatureWithDepth(parent, TRANSLATION_KEY) != null || PhpElementsUtil.isFunctionReference(parent, 0, "trans", "__")
             )) {
@@ -66,12 +80,14 @@ public class TranslationReferences implements GotoCompletionLanguageRegistrar {
         });
     }
 
+    /** 翻译键的补全项与跳转目标提供者 */
     public static class TranslationKey extends GotoCompletionProvider {
 
         public TranslationKey(PsiElement element) {
             super(element);
         }
 
+        /** 从索引收集所有翻译键，生成补全列表 */
         @NotNull
         @Override
         public Collection<LookupElement> getLookupElements() {
@@ -86,6 +102,10 @@ public class TranslationReferences implements GotoCompletionLanguageRegistrar {
             return lookupElements;
         }
 
+        /**
+         * 在含该键的翻译文件中定位键元素作为跳转目标。
+         * 当前配置语言（translationLang）目录下的定义排在前面。
+         */
         @NotNull
         @Override
         public Collection<PsiElement> getPsiTargets(StringLiteralExpression element) {
@@ -94,6 +114,7 @@ public class TranslationReferences implements GotoCompletionLanguageRegistrar {
                 return Collections.emptyList();
             }
 
+            // 当前语言目录的路径片段，用于优先匹配
             final String priorityTemplate = "/" + HyperfSettings.getInstance(element.getProject()).translationLang + "/";
 
             final Set<PsiElement> priorityTargets = new LinkedHashSet<>();
@@ -112,6 +133,7 @@ public class TranslationReferences implements GotoCompletionLanguageRegistrar {
 
                 psiFileTarget.acceptChildren(new ArrayReturnPsiRecursiveVisitor(namespace, (key, psiKey, isRootElement) -> {
                     if (!isRootElement && key.equalsIgnoreCase(contents)) {
+                        // 当前语言的定义优先
                         if (virtualFile.getPath().contains(priorityTemplate)) {
                             priorityTargets.add(psiKey);
                         } else {
@@ -123,6 +145,7 @@ public class TranslationReferences implements GotoCompletionLanguageRegistrar {
                 return true;
             }, GlobalSearchScope.getScopeRestrictedByFileTypes(GlobalSearchScope.allScope(getProject()), PhpFileType.INSTANCE));
 
+            // 优先目标在前，其余追加在后
             priorityTargets.addAll(targets);
             return priorityTargets;
 

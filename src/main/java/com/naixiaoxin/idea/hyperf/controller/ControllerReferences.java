@@ -30,11 +30,21 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
+ * 路由中 "Controller@method" / "Controller::method" 字符串的补全与跳转。
+ *
+ * <p>覆盖两类 Router 调用：
+ * <ul>
+ *   <li>{@code Router::get/post/put/patch/delete/options('/path', 'App\Controller\X@y')} — 第 2 个参数；</li>
+ *   <li>{@code Router::addRoute([...], '/path', 'App\Controller\X@y')} — 第 3 个参数。</li>
+ * </ul>
+ * 补全列表来自 {@link ControllerCollector} 收集的所有控制器 action。
+ *
  * @author NaiXiaoXin(SeanWang) <i@naixiaoxin.com>
  */
 public class ControllerReferences implements GotoCompletionLanguageRegistrar {
 
     // 定义路由函数
+    /** 匹配 Router 的 REST 方法调用（handler 为第 2 个参数，index=1） */
     private static MethodMatcher.CallToSignature[] ROUTE = new MethodMatcher.CallToSignature[]{
             new MethodMatcher.CallToSignature("\\Hyperf\\HttpServer\\Router\\Router", "get"),
             new MethodMatcher.CallToSignature("\\Hyperf\\HttpServer\\Router\\Router", "post"),
@@ -44,6 +54,7 @@ public class ControllerReferences implements GotoCompletionLanguageRegistrar {
             new MethodMatcher.CallToSignature("\\Hyperf\\HttpServer\\Router\\Router", "options"),
     };
 
+    /** 匹配 Router::addRoute（handler 为第 3 个参数，index=2） */
     private static MethodMatcher.CallToSignature[] RouteAddRoute = new MethodMatcher.CallToSignature[]{
             new MethodMatcher.CallToSignature("\\Hyperf\\HttpServer\\Router\\Router", "addRoute"),
 
@@ -87,6 +98,7 @@ public class ControllerReferences implements GotoCompletionLanguageRegistrar {
         return new ControllerRoute(element);
     }
 
+    /** 路由 handler 字符串的补全项与跳转目标提供者 */
     private static class ControllerRoute extends GotoCompletionProvider {
 
 
@@ -95,6 +107,7 @@ public class ControllerReferences implements GotoCompletionLanguageRegistrar {
 
         }
 
+        /** 遍历所有控制器 action，生成 "FQN@method" 形式的补全项 */
         @NotNull
         @Override
         public Collection<LookupElement> getLookupElements() {
@@ -102,12 +115,14 @@ public class ControllerReferences implements GotoCompletionLanguageRegistrar {
             final Collection<LookupElement> lookupElements = new ArrayList<>();
             ControllerCollector.visitControllerActions(getProject(), (phpClass, method) -> {
                         String controllerFunction = phpClass.getFQN() + "@" + method.getName();
+                        // 去掉前导反斜杠，补全项使用不带 \ 的形式
                         if (StringUtil.startsWith(controllerFunction, "\\")) {
                             controllerFunction = StringUtil.trimStart(controllerFunction, "\\");
                         }
                         LookupElementBuilder lookupElementBuilder = LookupElementBuilder.create(controllerFunction)
                                 .withIcon(HyperfIcons.CONTROLLER);
 
+                        // 方法有参数时在补全项尾部显示参数签名
                         Parameter[] parameters = method.getParameters();
                         if (parameters.length > 0) {
                             lookupElementBuilder = lookupElementBuilder.withTailText(PhpPresentationUtil.formatParameters(null, parameters).toString());
@@ -122,6 +137,7 @@ public class ControllerReferences implements GotoCompletionLanguageRegistrar {
             return lookupElements;
         }
 
+        /** 解析 "Controller@method" / "Controller::method"，定位到目标方法作为跳转目标 */
         @NotNull
         @Override
         public Collection<PsiElement> getPsiTargets(final StringLiteralExpression element) {
@@ -144,12 +160,12 @@ public class ControllerReferences implements GotoCompletionLanguageRegistrar {
                 controllerSplit = content.split("::");
             }
 
-            // 如果存在controller
+            // 必须正好拆成 "类名 + 方法名" 两段，否则无法解析
             if (controllerSplit == null || controllerSplit.length != 2) {
                 return targets;
             }
             String controllerName = controllerSplit[0];
-            // 补全Controller的类名
+            // 补全Controller的类名（PhpIndex 按 FQN 查询需要前导反斜杠）
             if (!StringUtil.startsWith(controllerName, "\\")) {
                 controllerName = "\\" + controllerName;
             }
@@ -159,6 +175,7 @@ public class ControllerReferences implements GotoCompletionLanguageRegistrar {
                 if (method == null) {
                     continue;
                 }
+                // 静态或非 public 方法不可作为路由 action，跳过
                 if (method.isStatic() || !method.getAccess().isPublic()) {
                     continue;
                 }
