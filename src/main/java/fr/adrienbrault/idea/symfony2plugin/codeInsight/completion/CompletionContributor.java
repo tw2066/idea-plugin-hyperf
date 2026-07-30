@@ -7,7 +7,7 @@ import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
-import com.naixiaoxin.idea.hyperf.HyperfProjectComponent;
+import com.naixiaoxin.idea.hyperf.HyperfStartupActivity;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionContributor;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionProviderInterface;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.utils.GotoCompletionUtil;
@@ -21,7 +21,7 @@ public class CompletionContributor extends com.intellij.codeInsight.completion.C
             protected void addCompletions(@NotNull CompletionParameters completionParameters, ProcessingContext processingContext, @NotNull CompletionResultSet completionResultSet) {
 
                 PsiElement psiElement = completionParameters.getOriginalPosition();
-                if (psiElement == null || !HyperfProjectComponent.isEnabled(psiElement)) {
+                if (psiElement == null || !HyperfStartupActivity.isEnabled(psiElement)) {
                     return;
                 }
 

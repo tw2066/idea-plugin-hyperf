@@ -15,13 +15,13 @@ import com.jetbrains.php.lang.psi.elements.PhpClass;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
 import com.jetbrains.php.lang.psi.elements.impl.PhpPsiElementImpl;
 import com.naixiaoxin.idea.hyperf.HyperfIcons;
-import com.naixiaoxin.idea.hyperf.HyperfProjectComponent;
+import com.naixiaoxin.idea.hyperf.HyperfStartupActivity;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionContributor;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionLanguageRegistrar;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionProvider;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionRegistrarParameter;
 import fr.adrienbrault.idea.symfony2plugin.util.MethodMatcher;
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,7 +61,7 @@ public class ControllerReferences implements GotoCompletionLanguageRegistrar {
             @Nullable
             @Override
             public GotoCompletionProvider getProvider(@Nullable PsiElement psiElement) {
-                if (!HyperfProjectComponent.isEnabled(psiElement)) {
+                if (!HyperfStartupActivity.isEnabled(psiElement)) {
                     return null;
                 }
                 PsiElement parent = psiElement.getParent();
@@ -102,8 +102,8 @@ public class ControllerReferences implements GotoCompletionLanguageRegistrar {
             final Collection<LookupElement> lookupElements = new ArrayList<>();
             ControllerCollector.visitControllerActions(getProject(), (phpClass, method) -> {
                         String controllerFunction = phpClass.getFQN() + "@" + method.getName();
-                        if (StringUtils.startsWith(controllerFunction, "\\")) {
-                            controllerFunction = StringUtils.stripStart(controllerFunction, "\\");
+                        if (StringUtil.startsWith(controllerFunction, "\\")) {
+                            controllerFunction = StringUtil.trimStart(controllerFunction, "\\");
                         }
                         LookupElementBuilder lookupElementBuilder = LookupElementBuilder.create(controllerFunction)
                                 .withIcon(HyperfIcons.CONTROLLER);
@@ -127,7 +127,7 @@ public class ControllerReferences implements GotoCompletionLanguageRegistrar {
         public Collection<PsiElement> getPsiTargets(final StringLiteralExpression element) {
 
             final String content = element.getContents();
-            if (StringUtils.isBlank(content)) {
+            if (StringUtil.isEmptyOrSpaces(content)) {
                 return Collections.emptyList();
             }
 
@@ -150,7 +150,7 @@ public class ControllerReferences implements GotoCompletionLanguageRegistrar {
             }
             String controllerName = controllerSplit[0];
             // 补全Controller的类名
-            if (!StringUtils.startsWith(controllerName, "\\")) {
+            if (!StringUtil.startsWith(controllerName, "\\")) {
                 controllerName = "\\" + controllerName;
             }
             Collection<PhpClass> controllerClass = PhpIndex.getInstance(getProject()).getClassesByFQN(controllerName);

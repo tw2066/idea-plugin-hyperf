@@ -8,7 +8,7 @@ import com.jetbrains.php.lang.psi.elements.ArrayHashElement;
 import com.jetbrains.php.lang.psi.elements.PhpReturn;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
 import com.naixiaoxin.idea.hyperf.stub.processor.ArrayKeyVisitor;
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.util.text.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,7 +66,7 @@ public class ArrayReturnPsiRecursiveVisitor extends PsiRecursiveElementWalkingVi
             if (arrayKey instanceof StringLiteralExpression) {
                 List<String> myContext = new ArrayList<>(context);
                 myContext.add(((StringLiteralExpression) arrayKey).getContents());
-                String keyName = StringUtils.join(myContext, ".");
+                String keyName = StringUtil.join(myContext, ".");
 
                 if (arrayValue instanceof ArrayCreationExpression) {
                     arrayKeyVisitor.visit(keyName, arrayKey, true);

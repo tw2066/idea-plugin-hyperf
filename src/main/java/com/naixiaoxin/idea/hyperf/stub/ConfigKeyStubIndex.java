@@ -10,9 +10,9 @@ import com.jetbrains.php.lang.PhpFileType;
 import com.jetbrains.php.lang.psi.PhpFile;
 import com.naixiaoxin.idea.hyperf.config.ConfigFileUtil;
 import com.naixiaoxin.idea.hyperf.util.ArrayReturnPsiRecursiveVisitor;
-import gnu.trove.THashMap;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -33,7 +33,7 @@ public class ConfigKeyStubIndex extends FileBasedIndexExtension<String, Void> {
     @Override
     public DataIndexer<String, Void, FileContent> getIndexer() {
         return fileContent -> {
-            final Map<String, Void> map = new THashMap<>();
+            final Map<String, Void> map = new HashMap<>();
 
             PsiFile psiFile = fileContent.getPsiFile();
             if(!(psiFile instanceof PhpFile)) {

@@ -13,7 +13,7 @@ import com.jetbrains.php.lang.PhpFileType;
 import com.jetbrains.php.lang.PhpLanguage;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
 import com.naixiaoxin.idea.hyperf.HyperfIcons;
-import com.naixiaoxin.idea.hyperf.HyperfProjectComponent;
+import com.naixiaoxin.idea.hyperf.HyperfStartupActivity;
 import com.naixiaoxin.idea.hyperf.stub.ConfigKeyStubIndex;
 import com.naixiaoxin.idea.hyperf.stub.processor.CollectProjectUniqueKeys;
 import com.naixiaoxin.idea.hyperf.util.ArrayReturnPsiRecursiveVisitor;
@@ -22,7 +22,7 @@ import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionProvider;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionRegistrarParameter;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.utils.PhpElementsUtil;
 import fr.adrienbrault.idea.symfony2plugin.util.MethodMatcher;
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -43,7 +43,7 @@ public class ConfigReferences implements GotoCompletionLanguageRegistrar {
     @Override
     public void register(GotoCompletionRegistrarParameter registrar) {
         registrar.register(PlatformPatterns.psiElement(), psiElement -> {
-            if (!HyperfProjectComponent.isEnabled(psiElement)) {
+            if (!HyperfStartupActivity.isEnabled(psiElement)) {
                 return null;
             }
 
@@ -85,7 +85,7 @@ public class ConfigReferences implements GotoCompletionLanguageRegistrar {
 
             final Set<PsiElement> targets = new HashSet<>();
             final String contents = element.getContents();
-            if (StringUtils.isBlank(contents)) {
+            if (StringUtil.isEmptyOrSpaces(contents)) {
                 return targets;
             }
 

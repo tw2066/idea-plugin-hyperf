@@ -15,7 +15,11 @@ public class ConfigFileUtil {
 
 
     public static ConfigFileMatchResult matchConfigFile(Project project, VirtualFile virtualFile) {
-        String projectPath = project.getBaseDir().getPath();
+        VirtualFile baseDir = project.getBaseDir();
+        if (baseDir == null) {
+            return ConfigFileMatchResult.NO_MATCH;
+        }
+        String projectPath = baseDir.getPath();
         String path = StringUtil.trimStart(virtualFile.getPath(), projectPath);
 
         Matcher m = configFilePattern.matcher(path);

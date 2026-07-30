@@ -6,7 +6,7 @@ import com.jetbrains.php.PhpIndex;
 import com.jetbrains.php.lang.psi.elements.Method;
 import com.jetbrains.php.lang.psi.elements.PhpClass;
 import com.naixiaoxin.idea.hyperf.util.PhpClassUtil;
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -27,7 +27,7 @@ public class ControllerCollector {
                     String className = phpClass.getPresentableFQN();
                     String methodName = method.getName();
                     if (!method.isStatic() && method.getAccess().isPublic() && !methodName.startsWith("__")) {
-                        if (StringUtils.isNotBlank(className)) {
+                        if (!StringUtil.isEmptyOrSpaces(className)) {
                             visitor.visit(phpClass, method);
                         }
                     }

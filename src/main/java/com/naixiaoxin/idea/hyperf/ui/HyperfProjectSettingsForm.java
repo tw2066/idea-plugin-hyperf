@@ -1,6 +1,6 @@
 package com.naixiaoxin.idea.hyperf.ui;
 
-import com.intellij.ide.actions.ShowSettingsUtilImpl;
+import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -83,6 +83,6 @@ public class HyperfProjectSettingsForm implements Configurable {
     }
 
     public static void show(@NotNull Project project) {
-        ShowSettingsUtilImpl.showSettingsDialog(project, "Hyperf.SettingsForm", null);
+        ShowSettingsUtil.getInstance().showSettingsDialog(project, "Hyperf.SettingsForm");
     }
 }

@@ -3,7 +3,6 @@ package com.naixiaoxin.idea.hyperf.translation;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.lang.Language;
-import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.patterns.PlatformPatterns;
@@ -16,7 +15,7 @@ import com.jetbrains.php.lang.PhpFileType;
 import com.jetbrains.php.lang.PhpLanguage;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
 import com.naixiaoxin.idea.hyperf.HyperfIcons;
-import com.naixiaoxin.idea.hyperf.HyperfProjectComponent;
+import com.naixiaoxin.idea.hyperf.HyperfStartupActivity;
 import com.naixiaoxin.idea.hyperf.HyperfSettings;
 import com.naixiaoxin.idea.hyperf.stub.TranslationKeyStubIndex;
 import com.naixiaoxin.idea.hyperf.stub.processor.CollectProjectUniqueKeys;
@@ -26,7 +25,7 @@ import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionProvider;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionRegistrarParameter;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.utils.PhpElementsUtil;
 import fr.adrienbrault.idea.symfony2plugin.util.MethodMatcher;
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -45,11 +44,14 @@ public class TranslationReferences implements GotoCompletionLanguageRegistrar {
     @Override
     public void register(GotoCompletionRegistrarParameter registrar) {
         registrar.register(PlatformPatterns.psiElement(), psiElement -> {
-            if (!HyperfProjectComponent.isEnabled(psiElement)) {
+            if (!HyperfStartupActivity.isEnabled(psiElement)) {
                 return null;
             }
             // only install hyperf/translation
-            VirtualFile baseDir = LocalFileSystem.getInstance().findFileByPath(Objects.requireNonNull(psiElement.getProject().getBasePath()));
+            VirtualFile baseDir = psiElement.getProject().getBaseDir();
+            if (baseDir == null) {
+                return null;
+            }
             if (VfsUtil.findRelativeFile(baseDir, "vendor", "hyperf", "translation") == null
             ) {
                 return null;
@@ -88,7 +90,7 @@ public class TranslationReferences implements GotoCompletionLanguageRegistrar {
         @Override
         public Collection<PsiElement> getPsiTargets(StringLiteralExpression element) {
             final String contents = element.getContents();
-            if (StringUtils.isBlank(contents)) {
+            if (StringUtil.isEmptyOrSpaces(contents)) {
                 return Collections.emptyList();
             }
 

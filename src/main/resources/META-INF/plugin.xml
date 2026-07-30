@@ -11,7 +11,7 @@
 
       <h2>Install</h2>
       <ul>
-        <li>Install plugin and active it per Project under "Settings > Languages & Frameworks > PHP > Hyperf"</li>
+        <li>Install plugin and active it per Project under "Settings > Languages &amp; Frameworks > PHP > Hyperf"</li>
         <li>Configure root translation directory, if not using default file structure</li>
         <li>(Enable autopopup for completion in plugin setting)</li>
       </ul>
@@ -30,11 +30,6 @@
       </ul>
 
     ]]></description>
-    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
-         on how to target different products -->
-    <!-- uncomment to enable plugin in all products
-    <depends>com.intellij.modules.lang</depends>
-    -->
 
     <extensions defaultExtensionNs="com.intellij">
         <projectConfigurable instance="com.naixiaoxin.idea.hyperf.ui.HyperfProjectSettingsForm"
@@ -50,23 +45,13 @@
 
         <projectService serviceImplementation="com.naixiaoxin.idea.hyperf.HyperfSettings"/>
         <fileBasedIndex implementation="com.naixiaoxin.idea.hyperf.stub.ConfigKeyStubIndex"/>
-        <fileBasedIndex implementation="com.naixiaoxin.idea.hyperf.stub.TranslationKeyStubIndex" />
-
-        <!-- Add your extensions here -->
+        <fileBasedIndex implementation="com.naixiaoxin.idea.hyperf.stub.TranslationKeyStubIndex"/>
+        <postStartupActivity implementation="com.naixiaoxin.idea.hyperf.HyperfStartupActivity"/>
+        <notificationGroup id="Hyperf Plugin" displayType="BALLOON"/>
     </extensions>
 
-    <actions>
-        <!-- Add your actions here -->
-    </actions>
-
-    <idea-version since-build="173.4127"/>
+    <idea-version since-build="262"/>
 
     <depends>com.jetbrains.php</depends>
     <depends>com.intellij.modules.platform</depends>
-
-    <project-components>
-        <component>
-            <implementation-class>com.naixiaoxin.idea.hyperf.HyperfProjectComponent</implementation-class>
-        </component>
-    </project-components>
 </idea-plugin>

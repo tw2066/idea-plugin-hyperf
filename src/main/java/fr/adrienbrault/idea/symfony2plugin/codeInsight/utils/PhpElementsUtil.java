@@ -15,7 +15,7 @@ import com.jetbrains.php.lang.psi.PhpPsiUtil;
 import com.jetbrains.php.lang.psi.elements.*;
 import fr.adrienbrault.idea.symfony2plugin.dic.MethodReferenceBag;
 import fr.adrienbrault.idea.symfony2plugin.util.ParameterBag;
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -225,7 +225,7 @@ public class PhpElementsUtil {
 
         if(psiElement instanceof StringLiteralExpression) {
             String resolvedString = ((StringLiteralExpression) psiElement).getContents();
-            if(StringUtils.isEmpty(resolvedString)) {
+            if(StringUtil.isEmpty(resolvedString)) {
                 return null;
             }
 
@@ -343,7 +343,7 @@ public class PhpElementsUtil {
         Map<String, PsiElement> keys = new HashMap<String, PsiElement>();
         for (PsiElement child : arrayValues) {
             String stringValue = PhpElementsUtil.getStringValue(child.getFirstChild());
-            if(stringValue != null && StringUtils.isNotBlank(stringValue)) {
+            if(stringValue != null && !StringUtil.isEmptyOrSpaces(stringValue)) {
                 keys.put(stringValue, child);
             }
         }
@@ -431,8 +431,8 @@ public class PhpElementsUtil {
         PhpExpression classReference = value.getClassReference();
         if(classReference instanceof PhpReference) {
             String fqn = ((PhpReference) classReference).getFQN();
-            if(StringUtils.isNotBlank(fqn)) {
-                return StringUtils.stripStart(fqn, "\\");
+            if(!StringUtil.isEmptyOrSpaces(fqn)) {
+                return StringUtil.trimStart(fqn, "\\");
             }
         }
 
