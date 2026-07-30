@@ -92,10 +92,10 @@ public class ConfigKeyStubIndex extends FileBasedIndexExtension<String, Void> {
         return true;
     }
 
-    /** 索引版本；结构变化时递增以触发重建 */
+    /** 索引版本；结构变化时递增以触发重建（v2：支持文件名含 "." 的配置文件前缀） */
     @Override
     public int getVersion() {
-        return 1;
+        return 2;
     }
 
 

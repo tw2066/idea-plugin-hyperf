@@ -19,8 +19,9 @@ import java.util.regex.Pattern;
  * </ul>
  */
 public class ConfigFileUtil {
-    /** 匹配 config/autoload/ 下的配置文件，捕获相对路径作为前缀（多级目录转为 "." 分隔） */
-    private static final Pattern configFilePattern = Pattern.compile(".*/config/autoload/([\\w-/]+).php$");
+    /** 匹配 config/autoload/ 下的配置文件，捕获相对路径作为前缀（多级目录与文件名中的 "." 均转为 "." 分隔）。
+     *  捕获组需包含 "."：自 Hyperf 3.1 起支持文件名含 "." 的配置（如 a.b.php → 前缀 a.b）。 */
+    private static final Pattern configFilePattern = Pattern.compile(".*/config/autoload/([\\w./-]+)\\.php$");
 
     /** 匹配根配置文件 config/config.php */
     private static final Pattern configFile = Pattern.compile(".*/config/config.php$");
