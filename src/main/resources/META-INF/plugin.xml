@@ -46,6 +46,7 @@
         <projectService serviceImplementation="com.naixiaoxin.idea.hyperf.HyperfSettings"/>
         <fileBasedIndex implementation="com.naixiaoxin.idea.hyperf.stub.ConfigKeyStubIndex"/>
         <fileBasedIndex implementation="com.naixiaoxin.idea.hyperf.stub.TranslationKeyStubIndex"/>
+        <fileBasedIndex implementation="com.naixiaoxin.idea.hyperf.stub.EnvKeyStubIndex"/>
         <postStartupActivity implementation="com.naixiaoxin.idea.hyperf.HyperfStartupActivity"/>
         <notificationGroup id="Hyperf Plugin" displayType="BALLOON"/>
     </extensions>
