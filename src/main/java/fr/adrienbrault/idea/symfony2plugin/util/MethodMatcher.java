@@ -3,7 +3,7 @@ package fr.adrienbrault.idea.symfony2plugin.util;
 import com.intellij.psi.PsiElement;
 import com.jetbrains.php.lang.psi.elements.Method;
 import com.jetbrains.php.lang.psi.elements.MethodReference;
-import com.naixiaoxin.idea.hyperf.HyperfStartupActivity;
+import com.base.idea.hyperf.HyperfStartupActivity;
 import fr.adrienbrault.idea.symfony2plugin.Symfony2InterfacesUtil;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.utils.PhpElementsUtil;
 import fr.adrienbrault.idea.symfony2plugin.dic.MethodReferenceBag;

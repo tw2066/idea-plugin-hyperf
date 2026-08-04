@@ -1,10 +1,10 @@
 package fr.adrienbrault.idea.symfony2plugin.codeInsight.utils;
 
 import com.intellij.psi.PsiElement;
-import com.naixiaoxin.idea.hyperf.config.ConfigReferences;
-import com.naixiaoxin.idea.hyperf.controller.ControllerReferences;
-import com.naixiaoxin.idea.hyperf.env.EnvReferences;
-import com.naixiaoxin.idea.hyperf.translation.TranslationReferences;
+import com.base.idea.hyperf.config.ConfigReferences;
+import com.base.idea.hyperf.controller.ControllerReferences;
+import com.base.idea.hyperf.env.EnvReferences;
+import com.base.idea.hyperf.translation.TranslationReferences;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionContributor;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionLanguageRegistrar;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionRegistrar;

@@ -3,8 +3,8 @@ plugins {
     id 'org.jetbrains.intellij.platform' version '2.18.1'
 }
 
-group 'com.naixiaoxin.idea.hyperf'
-version '1.0.6'
+group 'com.base.idea.hyperf'
+version '1.0.0'
 
 repositories {
     maven { url 'https://maven.aliyun.com/repository/public/' }
@@ -47,7 +47,7 @@ tasks.withType(JavaCompile).configureEach {
 
 intellijPlatform {
     pluginConfiguration {
-        name = 'Hyperf Plugin'
+        name = 'hyperf base'
         ideaVersion {
             sinceBuild = '262'
         }

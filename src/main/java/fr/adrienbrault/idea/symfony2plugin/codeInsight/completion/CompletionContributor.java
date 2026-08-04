@@ -7,7 +7,7 @@ import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
-import com.naixiaoxin.idea.hyperf.HyperfStartupActivity;
+import com.base.idea.hyperf.HyperfStartupActivity;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionContributor;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionProviderInterface;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.utils.GotoCompletionUtil;
