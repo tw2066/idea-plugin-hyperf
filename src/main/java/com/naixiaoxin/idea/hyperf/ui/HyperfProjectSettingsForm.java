@@ -29,6 +29,7 @@ public class HyperfProjectSettingsForm implements Configurable {
     private final Project project;
 
     private JCheckBox enabled;
+    private JCheckBox envEnabled;
     private JTextField textTranslationLang;
     private JTextField textTranslationPath;
 
@@ -56,6 +57,7 @@ public class HyperfProjectSettingsForm implements Configurable {
     @Override
     public JComponent createComponent() {
         enabled = new JCheckBox("Enable plugin for this project");
+        envEnabled = new JCheckBox("Enable env() completion & goto (.env keys)");
         textTranslationPath = new JTextField();
         textTranslationLang = new JTextField();
         textTranslationLang.setToolTipText("If you have more than one language in project, this one will be first in \"Go to\" translation options");
@@ -94,7 +96,10 @@ public class HyperfProjectSettingsForm implements Configurable {
         fields.add(Box.createVerticalGlue(), glue);
 
         JPanel panel = new JPanel(new BorderLayout());
-        panel.add(enabled, BorderLayout.NORTH);
+        JPanel checks = new JPanel(new GridLayout(2, 1));
+        checks.add(enabled);
+        checks.add(envEnabled);
+        panel.add(checks, BorderLayout.NORTH);
         panel.add(fields, BorderLayout.CENTER);
 
         updateUIFromSettings();
@@ -105,6 +110,7 @@ public class HyperfProjectSettingsForm implements Configurable {
     @Override
     public boolean isModified() {
         return enabled.isSelected() != getSettings().pluginEnabled
+                || envEnabled.isSelected() != getSettings().envEnabled
                 || !textTranslationLang.getText().equals(getSettings().translationLang)
                 || !textTranslationPath.getText().equals(getSettings().translationPath);
     }
@@ -113,6 +119,7 @@ public class HyperfProjectSettingsForm implements Configurable {
     @Override
     public void apply() throws ConfigurationException {
         getSettings().pluginEnabled = enabled.isSelected();
+        getSettings().envEnabled = envEnabled.isSelected();
         getSettings().translationLang = textTranslationLang.getText();
         getSettings().translationPath = textTranslationPath.getText();
     }
@@ -129,6 +136,7 @@ public class HyperfProjectSettingsForm implements Configurable {
             return;
         }
         enabled.setSelected(getSettings().pluginEnabled);
+        envEnabled.setSelected(getSettings().envEnabled);
         textTranslationLang.setText(getSettings().translationLang);
         textTranslationPath.setText(getSettings().translationPath);
     }

@@ -11,6 +11,7 @@ import com.intellij.util.indexing.FileBasedIndex;
 import com.jetbrains.php.lang.PhpLanguage;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
 import com.naixiaoxin.idea.hyperf.HyperfIcons;
+import com.naixiaoxin.idea.hyperf.HyperfSettings;
 import com.naixiaoxin.idea.hyperf.HyperfStartupActivity;
 import com.naixiaoxin.idea.hyperf.stub.EnvKeyStubIndex;
 import com.naixiaoxin.idea.hyperf.stub.processor.CollectProjectUniqueKeys;
@@ -45,6 +46,10 @@ public class EnvReferences implements GotoCompletionLanguageRegistrar {
     public void register(GotoCompletionRegistrarParameter registrar) {
         registrar.register(PlatformPatterns.psiElement().withParent(StringLiteralExpression.class), psiElement -> {
             if (!HyperfStartupActivity.isEnabled(psiElement)) {
+                return null;
+            }
+            // 设置里关闭 env 功能则整体短路
+            if (!HyperfSettings.getInstance(psiElement.getProject()).envEnabled) {
                 return null;
             }
             PsiElement parent = psiElement.getParent();
