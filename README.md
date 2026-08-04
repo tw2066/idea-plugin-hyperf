@@ -2,6 +2,8 @@
 
 为 [Hyperf](https://www.hyperf.io) PHP 框架提供 IDE 支持的 PhpStorm 插件，支持路由、配置、翻译、环境变量的补全与跳转。
 
+> **Fork 声明**：本项目 fork 自 [qiqizjl/idea-plugin-hyperf](https://github.com/qiqizjl/idea-plugin-hyperf)，原作者为 NaiXiaoXin（SeanWang）。本 fork 在原项目基础上进行了 Hyperf 3.x 适配（`@method` 魔术 Router、3.1+ 点号配置文件）、新增 `.env` 环境变量键补全跳转，并更名为 **hyperf base** 独立发布。原项目未声明开源许可证，本 fork 保留原作者署名与核心框架代码。
+
 目标平台为 **PhpStorm 2026.2（PS-262）**，`since-build = 262`，仅支持 2026.x。
 
 ## 功能
@@ -29,7 +31,7 @@
 
 1. 构建插件（见下文「构建」），或从 Releases 下载 zip。
 2. PhpStorm：**Settings → Plugins → ⚙ → Install Plugin from Disk…** 选择 zip。
-3. 打开 Hyperf 项目后，在 **Settings → Languages & Frameworks → PHP → Hyperf** 启用插件，并按需配置翻译语言与翻译目录。
+3. 打开 Hyperf 项目后，在 **Settings → Languages & Frameworks → PHP → Hyperf Base** 启用插件，并按需配置翻译语言与翻译目录。
 
 ## 构建
 
@@ -55,7 +57,7 @@
 
 ## 架构
 
-- `com.naixiaoxin.idea.hyperf.*` — 插件本体
+- `com.base.idea.hyperf.*` — 插件本体
 - `fr.adrienbrault.idea.symfony2plugin.*` — 从 Symfony 插件移植的通用 goto-completion 框架
 
 所有功能通过 GotoCompletion 框架挂载：`CompletionContributor` 负责补全、`GotoHandler` 负责跳转，二者经 `GotoCompletionUtil` 收集各 References 实现（路由/配置/翻译/env），按语言过滤后调用。索引侧用 `FileBasedIndexExtension`（配置/翻译键为 PHP PSI 索引，env 键为纯文本内容索引）。

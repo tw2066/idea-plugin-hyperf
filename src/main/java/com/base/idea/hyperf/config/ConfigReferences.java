@@ -32,17 +32,18 @@ import java.util.*;
  *
  * <p>覆盖两类调用场景：
  * <ul>
- *   <li>{@code \Hyperf\Contract\ConfigInterface::get()/has()} 方法调用的参数；</li>
+ *   <li>{@code \Hyperf\Contract\ConfigInterface::get()/has()/set()} 方法调用的参数；</li>
  *   <li>全局 {@code config()} 辅助函数的第一个参数。</li>
  * </ul>
  * 命中后提供配置键补全（来自 {@link ConfigKeyStubIndex} 索引）与跳转到定义位置。
  */
 public class ConfigReferences implements GotoCompletionLanguageRegistrar {
 
-    /** 匹配 ConfigInterface 的 get/has 方法调用 */
+    /** 匹配 ConfigInterface 的 get/has/set 方法调用 */
     private static MethodMatcher.CallToSignature[] CONFIG = new MethodMatcher.CallToSignature[]{
             new MethodMatcher.CallToSignature("\\Hyperf\\Contract\\ConfigInterface", "get"),
             new MethodMatcher.CallToSignature("\\Hyperf\\Contract\\ConfigInterface", "has"),
+            new MethodMatcher.CallToSignature("\\Hyperf\\Contract\\ConfigInterface", "set"),
     };
 
     @Override
