@@ -15,6 +15,7 @@ import com.jetbrains.php.lang.psi.elements.ArrayCreationExpression;
 import com.jetbrains.php.lang.psi.elements.ArrayHashElement;
 import com.jetbrains.php.lang.psi.elements.Field;
 import com.jetbrains.php.lang.psi.elements.Method;
+import com.jetbrains.php.lang.psi.elements.PhpAttribute;
 import com.jetbrains.php.lang.psi.elements.PhpClass;
 import com.jetbrains.php.lang.psi.elements.PhpReturn;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
@@ -59,6 +60,9 @@ public class ValidationReferences implements GotoCompletionLanguageRegistrar {
 
     /** FormRequest 基类 FQN，用于判断所在类是否为表单请求 */
     private static final String FORM_REQUEST = "\\Hyperf\\Validation\\Request\\FormRequest";
+
+    /** DTO 验证注解 FQN：#[Validation('required|string')]，其 $rule 参数即规则字符串 */
+    private static final String DTO_VALIDATION_ANNOTATION = "\\Hyperf\\DTO\\Annotation\\Validation\\Validation";
 
     /**
      * 内置验证规则表：[0]=规则名，[1]=参数占位符提示（tailText，空=无参数），[2]=中文说明（typeText），
@@ -199,10 +203,11 @@ public class ValidationReferences implements GotoCompletionLanguageRegistrar {
             if (!HyperfSettings.getInstance(psiElement.getProject()).validationEnabled) {
                 return null;
             }
-            // 未安装验证组件则不提供功能
+            // 未安装验证组件则不提供功能（hyperf/dto 的验证注解复用同一套规则，装了 dto 也放行）
             VirtualFile baseDir = psiElement.getProject().getBaseDir();
             if (baseDir == null
-                    || VfsUtil.findRelativeFile(baseDir, "vendor", "hyperf", "validation") == null) {
+                    || (VfsUtil.findRelativeFile(baseDir, "vendor", "hyperf", "validation") == null
+                        && VfsUtil.findRelativeFile(baseDir, "vendor", "hyperf", "dto") == null)) {
                 return null;
             }
 
@@ -227,6 +232,11 @@ public class ValidationReferences implements GotoCompletionLanguageRegistrar {
      * {@link ArrayCreationExpression}，最后判断该数组处于三种验证上下文之一。
      */
     public static boolean isValidationRuleString(@NotNull StringLiteralExpression literal) {
+        // 场景四：DTO 验证注解的参数 #[Validation('required|string')] —— 注解参数不是数组 value，优先判断
+        if (isValidationAnnotationArgument(literal)) {
+            return true;
+        }
+
         // 向上找最近的 ArrayHashElement（key=>value 之间还包了一层 ARRAY_VALUE 的 PhpPsiElementImpl，
         // 不能直接假设 literal.getParent() 就是 ArrayHashElement）
         ArrayHashElement hashElement = PsiTreeUtil.getParentOfType(literal, ArrayHashElement.class);
@@ -249,6 +259,19 @@ public class ValidationReferences implements GotoCompletionLanguageRegistrar {
         com.intellij.openapi.diagnostic.Logger.getInstance(ValidationReferences.class)
                 .warn("[ValMatch] factory=" + factory + " rulesRet=" + rulesRet + " scenes=" + scenes);
         return factory || rulesRet || scenes;
+    }
+
+    /**
+     * 字符串是否是 DTO 验证注解 {@code #[Validation('...')]} 的 $rule 参数值。
+     * 向上找最近的 {@link PhpAttribute}，比对注解类 FQN 即可（$rule 是该注解首个/唯一必填参数）。
+     */
+    private static boolean isValidationAnnotationArgument(@NotNull StringLiteralExpression literal) {
+        PhpAttribute attribute = PsiTreeUtil.getParentOfType(literal, PhpAttribute.class);
+        if (attribute == null) {
+            return false;
+        }
+        String fqn = attribute.getFQN();
+        return fqn != null && fqn.equalsIgnoreCase(DTO_VALIDATION_ANNOTATION);
     }
 
     /** make()/validate() 的规则数组参数：数组本身是第 2 个直接参数（index=1） */
