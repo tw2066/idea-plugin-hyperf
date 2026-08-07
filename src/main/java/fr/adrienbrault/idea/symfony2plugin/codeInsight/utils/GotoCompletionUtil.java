@@ -5,6 +5,7 @@ import com.base.idea.hyperf.config.ConfigReferences;
 import com.base.idea.hyperf.controller.ControllerReferences;
 import com.base.idea.hyperf.env.EnvReferences;
 import com.base.idea.hyperf.translation.TranslationReferences;
+import com.base.idea.hyperf.validation.ValidationReferences;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionContributor;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionLanguageRegistrar;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionRegistrar;
@@ -20,6 +21,7 @@ public class GotoCompletionUtil {
             new ConfigReferences(),
             new TranslationReferences(),
             new EnvReferences(),
+            new ValidationReferences(),
 
     };
 

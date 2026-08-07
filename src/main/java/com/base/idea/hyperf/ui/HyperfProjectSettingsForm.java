@@ -30,6 +30,7 @@ public class HyperfProjectSettingsForm implements Configurable {
 
     private JCheckBox enabled;
     private JCheckBox envEnabled;
+    private JCheckBox validationEnabled;
     private JTextField textTranslationLang;
     private JTextField textTranslationPath;
 
@@ -58,6 +59,7 @@ public class HyperfProjectSettingsForm implements Configurable {
     public JComponent createComponent() {
         enabled = new JCheckBox("Enable plugin for this project");
         envEnabled = new JCheckBox("Enable env() completion & goto (.env keys)");
+        validationEnabled = new JCheckBox("Enable validation rule name completion");
         textTranslationPath = new JTextField();
         textTranslationLang = new JTextField();
         textTranslationLang.setToolTipText("If you have more than one language in project, this one will be first in \"Go to\" translation options");
@@ -96,9 +98,10 @@ public class HyperfProjectSettingsForm implements Configurable {
         fields.add(Box.createVerticalGlue(), glue);
 
         JPanel panel = new JPanel(new BorderLayout());
-        JPanel checks = new JPanel(new GridLayout(2, 1));
+        JPanel checks = new JPanel(new GridLayout(3, 1));
         checks.add(enabled);
         checks.add(envEnabled);
+        checks.add(validationEnabled);
         panel.add(checks, BorderLayout.NORTH);
         panel.add(fields, BorderLayout.CENTER);
 
@@ -111,6 +114,7 @@ public class HyperfProjectSettingsForm implements Configurable {
     public boolean isModified() {
         return enabled.isSelected() != getSettings().pluginEnabled
                 || envEnabled.isSelected() != getSettings().envEnabled
+                || validationEnabled.isSelected() != getSettings().validationEnabled
                 || !textTranslationLang.getText().equals(getSettings().translationLang)
                 || !textTranslationPath.getText().equals(getSettings().translationPath);
     }
@@ -120,6 +124,7 @@ public class HyperfProjectSettingsForm implements Configurable {
     public void apply() throws ConfigurationException {
         getSettings().pluginEnabled = enabled.isSelected();
         getSettings().envEnabled = envEnabled.isSelected();
+        getSettings().validationEnabled = validationEnabled.isSelected();
         getSettings().translationLang = textTranslationLang.getText();
         getSettings().translationPath = textTranslationPath.getText();
     }
@@ -137,6 +142,7 @@ public class HyperfProjectSettingsForm implements Configurable {
         }
         enabled.setSelected(getSettings().pluginEnabled);
         envEnabled.setSelected(getSettings().envEnabled);
+        validationEnabled.setSelected(getSettings().validationEnabled);
         textTranslationLang.setText(getSettings().translationLang);
         textTranslationPath.setText(getSettings().translationPath);
     }

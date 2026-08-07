@@ -34,6 +34,9 @@ public class HyperfSettings implements PersistentStateComponent<HyperfSettings> 
     /** 是否启用 env() 环境变量键的补全与跳转（默认开启） */
     public boolean envEnabled = true;
 
+    /** 是否启用验证器规则名的补全（默认开启） */
+    public boolean validationEnabled = true;
+
     /** 翻译默认语言（跳转翻译时优先匹配的语言目录名） */
     public String translationLang = "zh_CN";
     /** 翻译文件根目录（相对项目根目录，Hyperf 默认为 /storage/languages） */
