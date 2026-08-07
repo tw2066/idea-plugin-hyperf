@@ -47,7 +47,7 @@ tasks.withType(JavaCompile).configureEach {
 
 intellijPlatform {
     pluginConfiguration {
-        name = 'hyperf base'
+        name = 'Hyperf Base'
         ideaVersion {
             sinceBuild = '262'
         }

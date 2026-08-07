@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>com.base.idea.hyperf</id>
-    <name>hyperf base</name>
+    <name>Hyperf Base</name>
     <vendor email="group@hyperf.io" url="https://www.hyperf.io">Hyperf Team</vendor>
 
     <description><![CDATA[
