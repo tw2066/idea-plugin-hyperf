@@ -2,7 +2,6 @@ package com.base.idea.hyperf.validation;
 
 import com.intellij.lang.documentation.AbstractDocumentationProvider;
 import com.intellij.lang.documentation.DocumentationMarkup;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -22,8 +21,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public class ValidationDocumentationProvider extends AbstractDocumentationProvider {
 
-    private static final Logger LOG = Logger.getInstance(ValidationDocumentationProvider.class);
-
     /** 上一次 {@link #getCustomDocumentationElement} 命中的字符串 */
     private static volatile StringLiteralExpression lastTarget;
     /** 对应的悬停偏移（在字符串内容内、相对 getContents()） */
@@ -37,7 +34,6 @@ public class ValidationDocumentationProvider extends AbstractDocumentationProvid
     @Override
     public @Nullable PsiElement getCustomDocumentationElement(@NotNull Editor editor, @NotNull PsiFile file,
                                                               @Nullable PsiElement contextElement, int targetOffset) {
-        LOG.warn("[ValDoc] getCustom contextElement=" + cls(contextElement) + " offset=" + targetOffset);
         lastTarget = null;
         lastOffset = -1;
         if (contextElement == null) {
@@ -49,7 +45,6 @@ public class ValidationDocumentationProvider extends AbstractDocumentationProvid
             StringLiteralExpression literal = (StringLiteralExpression) parent;
             lastTarget = literal;
             lastOffset = targetOffset - literal.getTextRange().getStartOffset() - 1;
-            LOG.warn("[ValDoc] getCustom -> HIT '" + literal.getContents() + "' offsetInContent=" + lastOffset);
             return literal;
         }
         return null;
@@ -57,29 +52,23 @@ public class ValidationDocumentationProvider extends AbstractDocumentationProvid
 
     @Override
     public @Nullable String generateDoc(PsiElement element, @Nullable PsiElement originalElement) {
-        LOG.warn("[ValDoc] generateDoc element=" + cls(element) + " original=" + cls(originalElement));
         // getCustomDocumentationElement 返回的是字符串本身，element 通常就是它
         PsiElement literalEl = element instanceof StringLiteralExpression ? element
                 : (originalElement != null ? originalElement.getParent() : null);
         if (!(literalEl instanceof StringLiteralExpression)) {
-            LOG.warn("[ValDoc] not a string literal: " + cls(literalEl));
             return null;
         }
         StringLiteralExpression literal = (StringLiteralExpression) literalEl;
 
         if (!HyperfStartupActivity.isEnabled(literal)) {
-            LOG.warn("[ValDoc] plugin not enabled");
             return null;
         }
         if (!HyperfSettings.getInstance(literal.getProject()).validationEnabled) {
-            LOG.warn("[ValDoc] validationEnabled=false");
             return null;
         }
         if (!ValidationReferences.isValidationRuleString(literal)) {
-            LOG.warn("[ValDoc] isValidationRuleString=false: '" + literal.getContents() + "'");
             return null;
         }
-        LOG.warn("[ValDoc] OK rule string: '" + literal.getContents() + "'");
 
         // 优先用 getCustomDocumentationElement 缓存的悬停偏移（同一字符串才有效）；
         // 否则退回 originalElement 位置；都取不到则用 0（首条规则）
@@ -94,7 +83,6 @@ public class ValidationDocumentationProvider extends AbstractDocumentationProvid
         if (caretInContent > contents.length()) {
             caretInContent = contents.length();
         }
-        LOG.warn("[ValDoc] caretInContent=" + caretInContent + " -> segment");
 
         String ruleName = extractRuleAt(contents, caretInContent);
         if (ruleName == null) {
@@ -148,14 +136,5 @@ public class ValidationDocumentationProvider extends AbstractDocumentationProvid
 
     private static @NotNull String escape(@NotNull String s) {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
-    }
-
-    private static @NotNull String cls(@Nullable PsiElement e) {
-        return e == null ? "null" : e.getClass().getSimpleName() + "('" + abbrev(e.getText()) + "')";
-    }
-
-    private static @NotNull String abbrev(@NotNull String s) {
-        s = s.replace("\n", " ");
-        return s.length() > 30 ? s.substring(0, 30) + "…" : s;
     }
 }

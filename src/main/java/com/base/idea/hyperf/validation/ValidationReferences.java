@@ -256,8 +256,6 @@ public class ValidationReferences implements GotoCompletionLanguageRegistrar {
         boolean factory = isRulesArgumentOfFactory((ArrayCreationExpression) arrayExpr);
         boolean rulesRet = isRulesMethodReturn((ArrayCreationExpression) arrayExpr);
         boolean scenes = isScenesValue(literal, hashElement);
-        com.intellij.openapi.diagnostic.Logger.getInstance(ValidationReferences.class)
-                .warn("[ValMatch] factory=" + factory + " rulesRet=" + rulesRet + " scenes=" + scenes);
         return factory || rulesRet || scenes;
     }
 

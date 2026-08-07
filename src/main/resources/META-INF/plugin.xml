@@ -4,7 +4,7 @@
     <vendor email="group@hyperf.io" url="https://www.hyperf.io">Hyperf Team</vendor>
 
     <description><![CDATA[
-      Hyperf Base provides IDE support for the Hyperf PHP framework in PhpStorm, including route controller completion &amp; navigation, config key indexing, translation key indexing, and environment variable completion.
+      Hyperf Base provides IDE support for the Hyperf PHP framework in PhpStorm, including route controller completion &amp; navigation, config key indexing, translation key indexing, environment variable completion, and validation rule completion &amp; hover docs.
       <br/>
       <a href="https://github.com/tw2066/idea-plugin-hyperf">Issues</a>
       <br/>
@@ -15,6 +15,7 @@
         <li><b>配置</b>：<code>config()</code> / <code>ConfigInterface::get/has</code> 配置键的索引、补全与跳转 —— 支持 Hyperf 3.1+ 的点号配置文件（<code>sub/a.php</code> → <code>sub.a</code>，<code>a.b.php</code> → <code>a.b</code>）</li>
         <li><b>翻译</b>：<code>trans()</code> / <code>__()</code> / <code>TranslatorInterface::trans()</code> 翻译键的索引、补全与跳转（需安装 hyperf/translation）</li>
         <li><b>环境变量</b>：<code>env()</code> 环境变量键的补全与跳转（读取项目根目录 <code>.env</code> 文件）</li>
+        <li><b>验证规则</b>：验证规则字符串（<code>required|max:255</code>）的补全与悬停中文文档 —— 支持 <code>FormRequest::rules()</code>、<code>ValidatorFactory::make()/validate()</code> 规则数组、<code>$scenes</code> 值及 DTO 注解 <code>#[Validation(...)]</code>（需安装 hyperf/validation 或 hyperf/dto）</li>
       </ul>
 
       <h2>安装与设置</h2>

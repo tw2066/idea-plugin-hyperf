@@ -1,6 +1,6 @@
 # IntelliJ IDEA / PhpStorm Hyperf Plugin
 
-为 [Hyperf](https://www.hyperf.io) PHP 框架提供 IDE 支持的 PhpStorm 插件，支持路由、配置、翻译、环境变量的补全与跳转。
+为 [Hyperf](https://www.hyperf.io) PHP 框架提供 IDE 支持的 PhpStorm 插件，支持路由、配置、翻译、环境变量、验证规则的补全与跳转。
 
 > **Fork 声明**：本项目 fork 自 [qiqizjl/idea-plugin-hyperf](https://github.com/qiqizjl/idea-plugin-hyperf)，原作者为 NaiXiaoXin（SeanWang）。本 fork 在原项目基础上进行了 Hyperf 3.x 适配（`@method` 魔术 Router、3.1+ 点号配置文件）、新增 `.env` 环境变量键补全跳转，并更名为 **hyperf base** 独立发布。原项目未声明开源许可证，本 fork 保留原作者署名与核心框架代码。
 
@@ -26,6 +26,13 @@
 - **环境变量**（索引、补全与跳转）：
   - 全局 `env('KEY')` / `\Hyperf\Support\env('KEY')` 辅助函数
   - 索引项目根目录 `.env` / `.env.*` 文件（跳过注释与空行）
+- **验证规则**（补全与悬停文档，不做跳转）：
+  - `FormRequest::rules()` 返回数组的规则字符串值
+  - `\Hyperf\Validation\Contract\ValidatorFactoryInterface::make()/validate()` 第 2 个参数（规则数组）的字符串值
+  - `FormRequest::$scenes` 属性里字符串键对应的规则值
+  - DTO 验证注解 `#[Validation('required|string')]` 的 `$rule` 参数（`\Hyperf\DTO\Annotation\Validation\Validation`）
+  - 内置与框架一致的全套规则（`required`/`max:255`/`exists:table,column` 等）；补全项带中文注释、带参规则选中后自动补 `:`；鼠标悬停（或 Ctrl+Q）在某条规则上显示对应中文说明
+  - 仅在项目安装了 `hyperf/validation` 或 `hyperf/dto` 组件时启用
 
 ## 安装
 
@@ -50,6 +57,7 @@
 
 ## 版本记录
 
+- **1.0.1**：新增验证规则补全与悬停中文文档（`FormRequest::rules()`、`ValidatorFactory::make()/validate()` 规则数组、`$scenes` 值、DTO 注解 `#[Validation(...)]`），内置与框架一致的全套规则；带参规则选中自动补 `:`；可在设置中开关（默认开启）。
 - **1.0.6**：修复 `env()` 补全在字符串字面量内未生效的问题；`ConfigFileUtil` 支持文件名含点号的配置文件前缀。
 - **1.0.5**：新增 `env()` 环境变量键的索引与补全跳转。
 - **1.0.4**：支持 Hyperf 3.1+ 配置文件名包含点号（`a.b.php` → 前缀 `a.b`）。
