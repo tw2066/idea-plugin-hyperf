@@ -4,10 +4,10 @@
     <vendor email="group@hyperf.io" url="https://www.hyperf.io">Hyperf Team</vendor>
 
     <description><![CDATA[
-      <h1>Hyperf Base</h1><br>
-    <br/>
-    <a href="https://github.com/tw2066/idea-plugin-hyperf">Issues</a>
-    <br/>
+      Hyperf Base provides IDE support for the Hyperf PHP framework in PhpStorm, including route controller completion &amp; navigation, config key indexing, translation key indexing, and environment variable completion.
+      <br/>
+      <a href="https://github.com/tw2066/idea-plugin-hyperf">Issues</a>
+      <br/>
 
       <h2>功能特性</h2>
       <ul>
