@@ -68,7 +68,7 @@ public class ValidationReferences implements GotoCompletionLanguageRegistrar {
      * （lower_snake 形式），并附带 normalizeRule 的别名 int/bool；中文说明取自 validation 文档。
      * 带「可选参数」的规则（如 integer:strict、alpha:ascii）拆成基础项与带参项两条独立补全。
      */
-    private static final String[][] RULES = {
+    static final String[][] RULES = {
             {"accepted", "", "必须是 yes、on、1 或 true（同意协议）", "0"},
             {"accepted_if", "anotherfield,value,...", "另一字段等于指定值时必须是 yes、on、1 或 true", "1"},
             {"active_url", "", "必须是有 A 或 AAAA 记录的有效域名", "0"},
@@ -226,7 +226,7 @@ public class ValidationReferences implements GotoCompletionLanguageRegistrar {
      * 包裹它的 {@link ArrayHashElement}（确认它是 value 而非 key），再拿到所属
      * {@link ArrayCreationExpression}，最后判断该数组处于三种验证上下文之一。
      */
-    private static boolean isValidationRuleString(@NotNull StringLiteralExpression literal) {
+    public static boolean isValidationRuleString(@NotNull StringLiteralExpression literal) {
         // 向上找最近的 ArrayHashElement（key=>value 之间还包了一层 ARRAY_VALUE 的 PhpPsiElementImpl，
         // 不能直接假设 literal.getParent() 就是 ArrayHashElement）
         ArrayHashElement hashElement = PsiTreeUtil.getParentOfType(literal, ArrayHashElement.class);
@@ -243,9 +243,12 @@ public class ValidationReferences implements GotoCompletionLanguageRegistrar {
             return false;
         }
 
-        return isRulesArgumentOfFactory((ArrayCreationExpression) arrayExpr)
-                || isRulesMethodReturn((ArrayCreationExpression) arrayExpr)
-                || isScenesValue(literal, hashElement);
+        boolean factory = isRulesArgumentOfFactory((ArrayCreationExpression) arrayExpr);
+        boolean rulesRet = isRulesMethodReturn((ArrayCreationExpression) arrayExpr);
+        boolean scenes = isScenesValue(literal, hashElement);
+        com.intellij.openapi.diagnostic.Logger.getInstance(ValidationReferences.class)
+                .warn("[ValMatch] factory=" + factory + " rulesRet=" + rulesRet + " scenes=" + scenes);
+        return factory || rulesRet || scenes;
     }
 
     /** make()/validate() 的规则数组参数：数组本身是第 2 个直接参数（index=1） */
