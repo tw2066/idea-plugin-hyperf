@@ -57,6 +57,7 @@
 
 ## 版本记录
 
+- **1.0.2**：修复多份 vendor 副本（如 WSL 项目嵌套 vendor）时验证规则补全不生效的问题 —— `isInstanceOf` 改用 FQN 比较而非 PSI 对象引用比较。
 - **1.0.1**：新增验证规则补全与悬停中文文档（`FormRequest::rules()`、`ValidatorFactory::make()/validate()` 规则数组、`$scenes` 值、DTO 注解 `#[Validation(...)]`），内置与框架一致的全套规则；带参规则选中自动补 `:`；可在设置中开关（默认开启）。
 - **1.0.6**：修复 `env()` 补全在字符串字面量内未生效的问题；`ConfigFileUtil` 支持文件名含点号的配置文件前缀。
 - **1.0.5**：新增 `env()` 环境变量键的索引与补全跳转。

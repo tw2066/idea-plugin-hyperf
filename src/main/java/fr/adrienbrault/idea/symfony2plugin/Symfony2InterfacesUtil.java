@@ -243,6 +243,11 @@ public class Symfony2InterfacesUtil {
             return true;
         }
 
+        // 多份 vendor 副本场景：对象不同但 FQN 相同视为实现同一接口
+        if (phpInterface.getFQN() != null && phpInterface.getFQN().equals(phpClass.getFQN())) {
+            return true;
+        }
+
         for (PhpClass implementedInterface : phpClass.getImplementedInterfaces()) {
             if (isImplementationOfInterface(implementedInterface, phpInterface)) {
                 return true;
@@ -281,6 +286,11 @@ public class Symfony2InterfacesUtil {
 
     public boolean isInstanceOf(@NotNull PhpClass subjectClass, @NotNull PhpClass expectedClass) {
         if (subjectClass == expectedClass) {
+            return true;
+        }
+
+        // 项目里同一类可能有多份 vendor 副本（如 WSL 项目嵌套 vendor），PSI 对象不同但 FQN 相同
+        if (expectedClass.getFQN() != null && expectedClass.getFQN().equals(subjectClass.getFQN())) {
             return true;
         }
 
