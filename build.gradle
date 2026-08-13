@@ -62,6 +62,13 @@ tasks.named('instrumentCode') {
     enabled = false
 }
 
+// 可选：-PopenProject=<路径> 让沙箱 IDE 启动后直接打开指定项目
+tasks.named('runIde') {
+    if (project.hasProperty('openProject')) {
+        args project.property('openProject')
+    }
+}
+
 def htmlFixer = { htmlFile -> file(htmlFile).text.replace('<html>', '').replace('</html>', '') }
 
 patchPluginXml {

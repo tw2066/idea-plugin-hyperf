@@ -4,6 +4,7 @@ import com.intellij.psi.PsiElement;
 import com.base.idea.hyperf.config.ConfigReferences;
 import com.base.idea.hyperf.controller.ControllerReferences;
 import com.base.idea.hyperf.env.EnvReferences;
+import com.base.idea.hyperf.path.BasePathReferences;
 import com.base.idea.hyperf.translation.TranslationReferences;
 import com.base.idea.hyperf.validation.ValidationReferences;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionContributor;
@@ -22,6 +23,7 @@ public class GotoCompletionUtil {
             new TranslationReferences(),
             new EnvReferences(),
             new ValidationReferences(),
+            new BasePathReferences(),
 
     };
 
