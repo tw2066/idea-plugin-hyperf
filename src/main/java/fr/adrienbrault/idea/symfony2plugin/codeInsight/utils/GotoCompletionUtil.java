@@ -2,6 +2,7 @@ package fr.adrienbrault.idea.symfony2plugin.codeInsight.utils;
 
 import com.intellij.psi.PsiElement;
 import com.base.idea.hyperf.aop.AspectReferences;
+import com.base.idea.hyperf.cache.CacheListenerReferences;
 import com.base.idea.hyperf.config.ConfigReferences;
 import com.base.idea.hyperf.controller.ControllerReferences;
 import com.base.idea.hyperf.env.EnvReferences;
@@ -28,6 +29,7 @@ public class GotoCompletionUtil {
             new BasePathReferences(),
             new ViewReferences(),
             new AspectReferences(),
+            new CacheListenerReferences(),
 
     };
 

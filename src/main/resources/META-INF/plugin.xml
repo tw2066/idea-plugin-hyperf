@@ -43,6 +43,7 @@
         <fileBasedIndex implementation="com.base.idea.hyperf.stub.ConfigKeyStubIndex"/>
         <fileBasedIndex implementation="com.base.idea.hyperf.stub.TranslationKeyStubIndex"/>
         <fileBasedIndex implementation="com.base.idea.hyperf.stub.EnvKeyStubIndex"/>
+        <fileBasedIndex implementation="com.base.idea.hyperf.stub.CacheListenerStubIndex"/>
         <postStartupActivity implementation="com.base.idea.hyperf.HyperfStartupActivity"/>
         <notificationGroup id="hyperf base" displayType="BALLOON"/>
     </extensions>
