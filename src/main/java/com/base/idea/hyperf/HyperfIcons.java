@@ -20,5 +20,7 @@ public class HyperfIcons {
     public static final Icon TRANSLATION = IconLoader.getIcon("/icons/translation.png", HyperfIcons.class);
     /** 验证器规则补全图标 */
     public static final Icon VALIDATION = IconLoader.getIcon("/icons/validation.png", HyperfIcons.class);
+    /** 视图模板补全图标 */
+    public static final Icon VIEW = IconLoader.getIcon("/icons/icon.png", HyperfIcons.class);
 
 }
