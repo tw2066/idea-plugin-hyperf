@@ -1,6 +1,6 @@
 # IntelliJ IDEA / PhpStorm Hyperf Plugin
 
-为 [Hyperf](https://www.hyperf.io) PHP 框架提供 IDE 支持的 PhpStorm 插件，支持路由、配置、翻译、环境变量、验证规则的补全与跳转。
+为 [Hyperf](https://www.hyperf.io) PHP 框架提供 IDE 支持的 PhpStorm 插件，支持路由、配置、翻译、环境变量、验证规则、视图模板、AOP 切面、缓存监听器的补全与跳转。
 
 > **Fork 声明**：本项目 fork 自 [qiqizjl/idea-plugin-hyperf](https://github.com/qiqizjl/idea-plugin-hyperf)，原作者为 NaiXiaoXin（SeanWang）。本 fork 在原项目基础上进行了 Hyperf 3.x 适配（`@method` 魔术 Router、3.1+ 点号配置文件）、新增 `.env` 环境变量键补全跳转，并更名为 **hyperf base** 独立发布。原项目未声明开源许可证，本 fork 保留原作者署名与核心框架代码。
 
@@ -33,6 +33,22 @@
   - DTO 验证注解 `#[Validation('required|string')]` 的 `$rule` 参数（`\Hyperf\DTO\Annotation\Validation\Validation`）
   - 内置与框架一致的全套规则（`required`/`max:255`/`exists:table,column` 等）；补全项带中文注释、带参规则选中后自动补 `:`；鼠标悬停（或 Ctrl+Q）在某条规则上显示对应中文说明
   - 仅在项目安装了 `hyperf/validation` 或 `hyperf/dto` 组件时启用
+- **BASE_PATH 路径**（补全与跳转）：
+  - `BASE_PATH . '/a/b' . $v` 拼接链中的字符串，以项目根为基准补全子目录/文件（目录优先，选中目录自动补 `/` 并续弹下一级）
+  - Ctrl+B 跳到对应文件/目录，效果等同 `__DIR__` 原生路径提示
+- **视图模板**（补全与跳转）：
+  - `view('user.list')` 辅助函数（hyperf/view-engine）
+  - `\Hyperf\View\RenderInterface::render()/getContents()`、`\Hyperf\ViewEngine\Contract\FactoryInterface::make()` 方法调用
+  - 按 view-engine 的 `Finder` 规则解析：点语法转目录，`pkg::name` 走 `view.php` 的 `namespaces` 配置（含 `view_path/vendor/<ns>` 自动 hint），扩展名按 `blade.php/php/css/html` 尝试
+  - 视图根目录读取 `config/autoload/view.php` 的 `config.view_path`（缺省 `storage/view`）
+- **AOP 切面**（跳转，不做补全）：
+  - `#[Aspect(classes: ['App\Service\Foo::bar', 'App\Service\Foo::*Method'])]` 注解内的字符串
+  - `AbstractAspect` 子类的 `$classes`/`$annotations` 属性默认值中的字符串
+  - `'FQN::method'` 跳具体方法；方法部分支持 `*` 通配（列出全部匹配方法）；类部分带 `*` 不跳转
+- **缓存监听器**（补全与双向跳转）：
+  - `#[Cacheable(listener: "user-update")]` / `#[FailCache(listener: "...")]` 注解参数（命名/位置参数均支持）
+  - `new DeleteListenerEvent("user-update", $args)` 构造第 1 参
+  - 定向互跳：事件使用侧跳注解声明侧，声明侧列出全部使用点；两处均可补全已注册的监听器名
 
 ## 安装
 
@@ -69,7 +85,7 @@
 - `com.base.idea.hyperf.*` — 插件本体
 - `fr.adrienbrault.idea.symfony2plugin.*` — 从 Symfony 插件移植的通用 goto-completion 框架
 
-所有功能通过 GotoCompletion 框架挂载：`CompletionContributor` 负责补全、`GotoHandler` 负责跳转，二者经 `GotoCompletionUtil` 收集各 References 实现（路由/配置/翻译/env），按语言过滤后调用。索引侧用 `FileBasedIndexExtension`（配置/翻译键为 PHP PSI 索引，env 键为纯文本内容索引）。
+所有功能通过 GotoCompletion 框架挂载：`CompletionContributor` 负责补全、`GotoHandler` 负责跳转，二者经 `GotoCompletionUtil` 收集各 References 实现（路由/配置/翻译/env/验证/视图/AOP/缓存监听器），按语言过滤后调用。索引侧用 `FileBasedIndexExtension`（配置/翻译键为 PHP PSI 索引，env 键为纯文本内容索引，缓存监听器名为上下文判定的 PSI 索引）。
 
 ## 相关
 
