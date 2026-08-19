@@ -37,10 +37,16 @@ public class HyperfSettings implements PersistentStateComponent<HyperfSettings> 
     /** 是否启用验证器规则名的补全（默认开启） */
     public boolean validationEnabled = true;
 
+    /** 是否显示主菜单栏的 Hyperf 菜单（代码生成与快捷命令，默认开启） */
+    public boolean menuEnabled = true;
+
     /** 翻译默认语言（跳转翻译时优先匹配的语言目录名） */
     public String translationLang = "zh_CN";
     /** 翻译文件根目录（相对项目根目录，Hyperf 默认为 /storage/languages） */
     public String translationPath = "/storage/languages";
+
+    /** PHP 可执行文件路径（留空则依次回退：项目 CLI 解释器 → PATH 中的 php） */
+    public String phpBinaryPath = "";
 
 
     public static HyperfSettings getInstance(@NotNull Project project) {

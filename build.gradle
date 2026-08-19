@@ -21,7 +21,7 @@ dependencies {
 
     intellijPlatform {
         phpstorm(ideaVersion)
-        bundledPlugins(['com.jetbrains.php'])
+        bundledPlugins(['com.jetbrains.php', 'org.jetbrains.plugins.terminal'])
     }
 }
 

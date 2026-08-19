@@ -1,6 +1,6 @@
 # IntelliJ IDEA / PhpStorm Hyperf Plugin
 
-为 [Hyperf](https://www.hyperf.io) PHP 框架提供 IDE 支持的 PhpStorm 插件，支持路由、配置、翻译、环境变量、验证规则、视图模板、AOP 切面、缓存监听器的补全与跳转。
+为 [Hyperf](https://www.hyperf.io) PHP 框架提供 IDE 支持的 PhpStorm 插件，支持路由、配置、翻译、环境变量、验证规则、视图模板、AOP 切面、缓存监听器的补全与跳转，以及代码生成与常用命令的快捷菜单。
 
 > **Fork 声明**：本项目 fork 自 [qiqizjl/idea-plugin-hyperf](https://github.com/qiqizjl/idea-plugin-hyperf)，原作者为 NaiXiaoXin（SeanWang）。本 fork 在原项目基础上进行了 Hyperf 3.x 适配（`@method` 魔术 Router、3.1+ 点号配置文件）、新增 `.env` 环境变量键补全跳转，并更名为 **hyperf base** 独立发布。原项目未声明开源许可证，本 fork 保留原作者署名与核心框架代码。
 
@@ -56,6 +56,11 @@
 - **Crontab 回调**（补全与跳转）：
   - `#[Crontab(rule: "...", callback: "execute")]` 的 callback 字符串（命名/位置参数均支持）
   - 跳注解所在类的同名方法；补全列出类内方法名（与框架 `[当前类, callback]` 调用语义一致）
+- **Hyperf 菜单**（代码生成与快捷命令，在内置 Terminal 执行）：
+  - 主菜单栏新增顶级 **Hyperf** 菜单（仅插件启用时可见，可在设置中关闭）
+  - `Code Generation`：`gen:controller/model/command/middleware/listener/job/process/aspect/request/resource/class/constant/migration/seeder`，弹输入框收类名后执行 `php bin/hyperf.php gen:*`（gen:model 表名可留空=全部表）
+  - `Commands`：`describe:routes/listeners/aspects`、`vendor:publish`、`migrate / migrate:status / migrate:rollback`、`start`、`server:watch`、`crontab:run`、`queue:flush`、`gen:view-engine-cache`
+  - PHP 路径解析顺序：设置页 `PHP Binary Path` → 项目 CLI 解释器 → PATH 中的 `php`；Unix 风格 PHP 路径（WSL）自动把脚本路径转为 `/mnt/...` 形式
 
 ## 安装
 
@@ -81,11 +86,8 @@
 ## 版本记录
 
 - **1.0.2**：修复多份 vendor 副本（如 WSL 项目嵌套 vendor）时验证规则补全不生效的问题 —— `isInstanceOf` 改用 FQN 比较而非 PSI 对象引用比较。
-- **1.0.1**：新增验证规则补全与悬停中文文档（`FormRequest::rules()`、`ValidatorFactory::make()/validate()` 规则数组、`$scenes` 值、DTO 注解 `#[Validation(...)]`），内置与框架一致的全套规则；带参规则选中自动补 `:`；可在设置中开关（默认开启）。
-- **1.0.6**：修复 `env()` 补全在字符串字面量内未生效的问题；`ConfigFileUtil` 支持文件名含点号的配置文件前缀。
-- **1.0.5**：新增 `env()` 环境变量键的索引与补全跳转。
-- **1.0.4**：支持 Hyperf 3.1+ 配置文件名包含点号（`a.b.php` → 前缀 `a.b`）。
-- 早期版本：路由/配置/翻译基础功能，适配 Hyperf 2.x 老版本。
+- **1.0.3**：新增验证规则补全与悬停中文文档（`FormRequest::rules()`、`ValidatorFactory::make()/validate()` 规则数组、`$scenes` 值、DTO 注解 `#[Validation(...)]`），内置与框架一致的全套规则；带参规则选中自动补 `:`；可在设置中开关（默认开启）。
+- **1.0.4（未发布）**：新增主菜单栏 **Hyperf** 顶级菜单 —— `Code Generation`（devtool `gen:*` 代码生成，弹框收类名后在内置 Terminal 执行）与 `Commands`（`describe:routes`、`migrate`、`start`、`crontab:run` 等常用命令一键执行）；设置页新增 `PHP Binary Path`（留空回退项目 CLI 解释器 → PATH）与菜单开关（默认开启）；支持 WSL 环境（Unix 风格 PHP 路径自动转换 `/mnt/...` 脚本路径）。
 
 ## 架构
 

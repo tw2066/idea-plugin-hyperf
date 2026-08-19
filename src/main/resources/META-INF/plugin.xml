@@ -16,6 +16,7 @@
         <li><b>翻译</b>：<code>trans()</code> / <code>__()</code> / <code>TranslatorInterface::trans()</code> 翻译键的索引、补全与跳转（需安装 hyperf/translation）</li>
         <li><b>环境变量</b>：<code>env()</code> 环境变量键的补全与跳转（读取项目根目录 <code>.env</code> 文件）</li>
         <li><b>验证规则</b>：验证规则字符串（<code>required|max:255</code>）的补全与悬停中文文档 —— 支持 <code>FormRequest::rules()</code>、<code>ValidatorFactory::make()/validate()</code> 规则数组、<code>$scenes</code> 值及 DTO 注解 <code>#[Validation(...)]</code>（需安装 hyperf/validation 或 hyperf/dto）</li>
+        <li><b>Hyperf 菜单</b>：主菜单栏代码生成（devtool <code>gen:*</code>）与常用命令（<code>describe:routes</code>、<code>migrate</code>、<code>start</code> 等），在内置 Terminal 执行，支持 WSL 环境</li>
       </ul>
 
       <h2>安装与设置</h2>
@@ -53,6 +54,53 @@
 
     <idea-version since-build="262"/>
 
+    <actions>
+        <group id="Hyperf.MainMenu" text="Hyperf" popup="true"
+               class="com.base.idea.hyperf.console.HyperfActionGroup">
+            <add-to-group group-id="MainMenu" anchor="after" relative-to-action="CodeMenu"/>
+
+            <group id="Hyperf.CodeGeneration" text="Code Generation" popup="true"
+                   class="com.base.idea.hyperf.console.HyperfActionGroup">
+                <action id="Hyperf.Gen.Controller" class="com.base.idea.hyperf.console.actions.gen.GenControllerAction" text="Controller"/>
+                <action id="Hyperf.Gen.Model" class="com.base.idea.hyperf.console.actions.gen.GenModelAction" text="Model"/>
+                <action id="Hyperf.Gen.Command" class="com.base.idea.hyperf.console.actions.gen.GenCommandAction" text="Command"/>
+                <action id="Hyperf.Gen.Middleware" class="com.base.idea.hyperf.console.actions.gen.GenMiddlewareAction" text="Middleware"/>
+                <action id="Hyperf.Gen.Listener" class="com.base.idea.hyperf.console.actions.gen.GenListenerAction" text="Listener"/>
+                <action id="Hyperf.Gen.Job" class="com.base.idea.hyperf.console.actions.gen.GenJobAction" text="Job"/>
+                <action id="Hyperf.Gen.Process" class="com.base.idea.hyperf.console.actions.gen.GenProcessAction" text="Process"/>
+                <action id="Hyperf.Gen.Aspect" class="com.base.idea.hyperf.console.actions.gen.GenAspectAction" text="Aspect"/>
+                <action id="Hyperf.Gen.Request" class="com.base.idea.hyperf.console.actions.gen.GenRequestAction" text="Request"/>
+                <action id="Hyperf.Gen.Resource" class="com.base.idea.hyperf.console.actions.gen.GenResourceAction" text="Resource"/>
+                <action id="Hyperf.Gen.Class" class="com.base.idea.hyperf.console.actions.gen.GenClassAction" text="Class"/>
+                <action id="Hyperf.Gen.Constant" class="com.base.idea.hyperf.console.actions.gen.GenConstantAction" text="Constant"/>
+                <action id="Hyperf.Gen.Migration" class="com.base.idea.hyperf.console.actions.gen.GenMigrationAction" text="Migration"/>
+                <action id="Hyperf.Gen.Seeder" class="com.base.idea.hyperf.console.actions.gen.GenSeederAction" text="Seeder"/>
+            </group>
+
+            <separator/>
+
+            <group id="Hyperf.Commands" text="Commands" popup="true"
+                   class="com.base.idea.hyperf.console.HyperfActionGroup">
+                <action id="Hyperf.Cmd.DescribeRoutes" class="com.base.idea.hyperf.console.actions.run.DescribeRoutesAction" text="describe:routes"/>
+                <action id="Hyperf.Cmd.DescribeListeners" class="com.base.idea.hyperf.console.actions.run.DescribeListenersAction" text="describe:listeners"/>
+                <action id="Hyperf.Cmd.DescribeAspects" class="com.base.idea.hyperf.console.actions.run.DescribeAspectsAction" text="describe:aspects"/>
+                <separator/>
+                <action id="Hyperf.Cmd.VendorPublish" class="com.base.idea.hyperf.console.actions.run.VendorPublishAction" text="vendor:publish"/>
+                <separator/>
+                <action id="Hyperf.Cmd.Migrate" class="com.base.idea.hyperf.console.actions.run.MigrateAction" text="migrate"/>
+                <action id="Hyperf.Cmd.MigrateStatus" class="com.base.idea.hyperf.console.actions.run.MigrateStatusAction" text="migrate:status"/>
+                <action id="Hyperf.Cmd.MigrateRollback" class="com.base.idea.hyperf.console.actions.run.MigrateRollbackAction" text="migrate:rollback"/>
+                <separator/>
+                <action id="Hyperf.Cmd.Start" class="com.base.idea.hyperf.console.actions.run.StartServerAction" text="start"/>
+                <action id="Hyperf.Cmd.ServerWatch" class="com.base.idea.hyperf.console.actions.run.ServerWatchAction" text="server:watch"/>
+                <action id="Hyperf.Cmd.CrontabRun" class="com.base.idea.hyperf.console.actions.run.CrontabRunAction" text="crontab:run"/>
+                <action id="Hyperf.Cmd.QueueFlush" class="com.base.idea.hyperf.console.actions.run.QueueFlushAction" text="queue:flush"/>
+                <action id="Hyperf.Cmd.ViewEngineCache" class="com.base.idea.hyperf.console.actions.run.ViewEngineCacheAction" text="gen:view-engine-cache"/>
+            </group>
+        </group>
+    </actions>
+
     <depends>com.jetbrains.php</depends>
     <depends>com.intellij.modules.platform</depends>
+    <depends>org.jetbrains.plugins.terminal</depends>
 </idea-plugin>
