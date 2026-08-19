@@ -53,6 +53,9 @@
   - `#[Cacheable(listener: "user-update")]` / `#[FailCache(listener: "...")]` 注解参数（命名/位置参数均支持）
   - `new DeleteListenerEvent("user-update", $args)` 构造第 1 参
   - 定向互跳：事件使用侧跳注解声明侧，声明侧列出全部使用点；两处均可补全已注册的监听器名
+- **Crontab 回调**（补全与跳转）：
+  - `#[Crontab(rule: "...", callback: "execute")]` 的 callback 字符串（命名/位置参数均支持）
+  - 跳注解所在类的同名方法；补全列出类内方法名（与框架 `[当前类, callback]` 调用语义一致）
 
 ## 安装
 

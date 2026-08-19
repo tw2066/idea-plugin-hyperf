@@ -5,6 +5,7 @@ import com.base.idea.hyperf.aop.AspectReferences;
 import com.base.idea.hyperf.cache.CacheListenerReferences;
 import com.base.idea.hyperf.config.ConfigReferences;
 import com.base.idea.hyperf.controller.ControllerReferences;
+import com.base.idea.hyperf.crontab.CrontabReferences;
 import com.base.idea.hyperf.env.EnvReferences;
 import com.base.idea.hyperf.path.BasePathReferences;
 import com.base.idea.hyperf.translation.TranslationReferences;
@@ -30,6 +31,7 @@ public class GotoCompletionUtil {
             new ViewReferences(),
             new AspectReferences(),
             new CacheListenerReferences(),
+            new CrontabReferences(),
 
     };
 
