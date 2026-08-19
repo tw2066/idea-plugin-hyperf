@@ -45,6 +45,10 @@
   - `#[Aspect(classes: ['App\Service\Foo::bar', 'App\Service\Foo::*Method'])]` 注解内的字符串
   - `AbstractAspect` 子类的 `$classes`/`$annotations` 属性默认值中的字符串
   - `'FQN::method'` 跳具体方法；方法部分支持 `*` 通配（列出全部匹配方法）；类部分带 `*` 不跳转
+- **DI 接口绑定**（悬停文档，不抢占跳转）：
+  - 悬停（或 Ctrl+Q）在接口上时，原生文档弹窗末尾追加 `Dependencies: \App\Foo\Impl`（生效实现，可点击跳转）
+  - 索引项目 `config/autoload/dependencies.php` 与 vendor 组件 `ConfigProvider` 的 `dependencies`，支持 `new PriorityDefinition(X::class, n)` 权重绑定
+  - 生效规则与框架逐条对齐：项目 dependencies.php 无条件覆盖；vendor 间按 `composer.lock` 声明顺序模拟 `ProviderConfig::merge`（PriorityDefinition 形态有覆盖保护、权重高者赢、同权重 lock 靠前赢）
 - **缓存监听器**（补全与双向跳转）：
   - `#[Cacheable(listener: "user-update")]` / `#[FailCache(listener: "...")]` 注解参数（命名/位置参数均支持）
   - `new DeleteListenerEvent("user-update", $args)` 构造第 1 参

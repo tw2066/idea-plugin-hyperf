@@ -38,12 +38,15 @@
                 implementation="fr.adrienbrault.idea.symfony2plugin.codeInsight.navigation.GotoHandler"/>
         <lang.documentationProvider language="PHP"
                 implementationClass="com.base.idea.hyperf.validation.ValidationDocumentationProvider"/>
+        <lang.documentationProvider language="PHP" order="first"
+                implementationClass="com.base.idea.hyperf.di.DiBindingDocumentationProvider"/>
 
         <projectService serviceImplementation="com.base.idea.hyperf.HyperfSettings"/>
         <fileBasedIndex implementation="com.base.idea.hyperf.stub.ConfigKeyStubIndex"/>
         <fileBasedIndex implementation="com.base.idea.hyperf.stub.TranslationKeyStubIndex"/>
         <fileBasedIndex implementation="com.base.idea.hyperf.stub.EnvKeyStubIndex"/>
         <fileBasedIndex implementation="com.base.idea.hyperf.stub.CacheListenerStubIndex"/>
+        <fileBasedIndex implementation="com.base.idea.hyperf.stub.DiBindingStubIndex"/>
         <postStartupActivity implementation="com.base.idea.hyperf.HyperfStartupActivity"/>
         <notificationGroup id="hyperf base" displayType="BALLOON"/>
     </extensions>
