@@ -31,8 +31,10 @@ public class HyperfProjectSettingsForm implements Configurable {
     private JCheckBox enabled;
     private JCheckBox envEnabled;
     private JCheckBox validationEnabled;
+    private JCheckBox menuEnabled;
     private JTextField textTranslationLang;
     private JTextField textTranslationPath;
+    private JTextField textPhpBinaryPath;
 
     public HyperfProjectSettingsForm(@NotNull final Project project) {
         this.project = project;
@@ -60,9 +62,12 @@ public class HyperfProjectSettingsForm implements Configurable {
         enabled = new JCheckBox("Enable plugin for this project");
         envEnabled = new JCheckBox("Enable env() completion & goto (.env keys)");
         validationEnabled = new JCheckBox("Enable validation rule name completion");
+        menuEnabled = new JCheckBox("Enable Hyperf top menu (code generation & commands)");
         textTranslationPath = new JTextField();
         textTranslationLang = new JTextField();
+        textPhpBinaryPath = new JTextField();
         textTranslationLang.setToolTipText("If you have more than one language in project, this one will be first in \"Go to\" translation options");
+        textPhpBinaryPath.setToolTipText("PHP executable for Hyperf menu commands. Empty = project CLI interpreter, then php from PATH");
 
         // 字段区：GridBagLayout，标签列 + 输入列
         JPanel fields = new JPanel(new GridBagLayout());
@@ -88,20 +93,26 @@ public class HyperfProjectSettingsForm implements Configurable {
         fields.add(new JLabel("Translation Lang"), label);
         fields.add(textTranslationLang, field);
 
+        label.gridy = 2;
+        field.gridy = 2;
+        fields.add(new JLabel("PHP Binary Path"), label);
+        fields.add(textPhpBinaryPath, field);
+
         // 垂直弹簧，把内容顶到面板上方
         GridBagConstraints glue = new GridBagConstraints();
         glue.gridx = 0;
-        glue.gridy = 2;
+        glue.gridy = 3;
         glue.gridwidth = 2;
         glue.weighty = 1.0;
         glue.fill = GridBagConstraints.VERTICAL;
         fields.add(Box.createVerticalGlue(), glue);
 
         JPanel panel = new JPanel(new BorderLayout());
-        JPanel checks = new JPanel(new GridLayout(3, 1));
+        JPanel checks = new JPanel(new GridLayout(4, 1));
         checks.add(enabled);
         checks.add(envEnabled);
         checks.add(validationEnabled);
+        checks.add(menuEnabled);
         panel.add(checks, BorderLayout.NORTH);
         panel.add(fields, BorderLayout.CENTER);
 
@@ -115,8 +126,10 @@ public class HyperfProjectSettingsForm implements Configurable {
         return enabled.isSelected() != getSettings().pluginEnabled
                 || envEnabled.isSelected() != getSettings().envEnabled
                 || validationEnabled.isSelected() != getSettings().validationEnabled
+                || menuEnabled.isSelected() != getSettings().menuEnabled
                 || !textTranslationLang.getText().equals(getSettings().translationLang)
-                || !textTranslationPath.getText().equals(getSettings().translationPath);
+                || !textTranslationPath.getText().equals(getSettings().translationPath)
+                || !textPhpBinaryPath.getText().equals(getSettings().phpBinaryPath);
     }
 
     /** Apply 按钮：把界面值写回持久化设置 */
@@ -125,8 +138,10 @@ public class HyperfProjectSettingsForm implements Configurable {
         getSettings().pluginEnabled = enabled.isSelected();
         getSettings().envEnabled = envEnabled.isSelected();
         getSettings().validationEnabled = validationEnabled.isSelected();
+        getSettings().menuEnabled = menuEnabled.isSelected();
         getSettings().translationLang = textTranslationLang.getText();
         getSettings().translationPath = textTranslationPath.getText();
+        getSettings().phpBinaryPath = textPhpBinaryPath.getText().trim();
     }
 
     /** Reset 按钮：用持久化值刷新界面 */
@@ -143,8 +158,10 @@ public class HyperfProjectSettingsForm implements Configurable {
         enabled.setSelected(getSettings().pluginEnabled);
         envEnabled.setSelected(getSettings().envEnabled);
         validationEnabled.setSelected(getSettings().validationEnabled);
+        menuEnabled.setSelected(getSettings().menuEnabled);
         textTranslationLang.setText(getSettings().translationLang);
         textTranslationPath.setText(getSettings().translationPath);
+        textPhpBinaryPath.setText(getSettings().phpBinaryPath);
     }
 
     @Override

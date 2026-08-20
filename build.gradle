@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'com.base.idea.hyperf'
-version '1.0.2'
+version '1.0.3'
 
 repositories {
     maven { url 'https://maven.aliyun.com/repository/public/' }
@@ -21,7 +21,7 @@ dependencies {
 
     intellijPlatform {
         phpstorm(ideaVersion)
-        bundledPlugins(['com.jetbrains.php'])
+        bundledPlugins(['com.jetbrains.php', 'org.jetbrains.plugins.terminal'])
     }
 }
 
@@ -36,7 +36,8 @@ java {
 sourceSets {
     test {
         java {
-            exclude 'com/naixiaoxin/idea/hyperf/**'
+            exclude 'com/base/idea/hyperf/ConfigTest.java'
+            exclude 'com/base/idea/hyperf/HyperflLightCodeInsightFixtureTestCase.java'
         }
     }
 }
@@ -52,18 +53,31 @@ intellijPlatform {
             sinceBuild = '262'
         }
     }
+    // 本地 JDK 25 不是 JetBrains Runtime，缺少 JBR 特有的 Packages 目录，插桩会报错。
+    // 插桩仅提供 @NotNull 运行时断言，禁用不影响功能；同时覆盖 main/test 两个插桩任务。
+    instrumentCode = false
 }
 
-// The local JDK 25 distribution is not a JetBrains Runtime and lacks the
-// JBR-specific 'Packages' directory that the instrumentCode task expects.
-// Bytecode instrumentation only adds @NotNull runtime assertions; disabling
-// it does not affect plugin functionality.
-tasks.named('instrumentCode') {
-    enabled = false
+// 可选：-PopenProject=<路径> 让沙箱 IDE 启动后直接打开指定项目
+tasks.named('runIde') {
+    if (project.hasProperty('openProject')) {
+        args project.property('openProject')
+    }
 }
 
-def htmlFixer = { htmlFile -> file(htmlFile).text.replace('<html>', '').replace('</html>', '') }
+// 从 CHANGELOG.md 提取首个版本段的 `- ` 条目，转成 changeNotes 的 <ul><li> HTML
+def latestChangeNotes = { ->
+    def md = file('CHANGELOG.md').text
+    def matcher = md =~ /(?ms)^## +\[[^\]]+\][^\n]*\n(.*?)(?=^## |\z)/
+    if (!matcher.find()) {
+        return ''
+    }
+    def items = matcher.group(1).readLines()
+            .findAll { it.trim().startsWith('- ') }
+            .collect { '<li>' + it.trim().substring(2).replaceAll(/`([^`]+)`/, '<code>$1</code>') + '</li>' }
+    return items.isEmpty() ? '' : '<ul>' + items.join('') + '</ul>'
+}
 
 patchPluginXml {
-    changeNotes = htmlFixer('./changelog.html')
+    changeNotes = latestChangeNotes()
 }

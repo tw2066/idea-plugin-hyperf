@@ -1,6 +1,6 @@
 # IntelliJ IDEA / PhpStorm Hyperf Plugin
 
-为 [Hyperf](https://www.hyperf.io) PHP 框架提供 IDE 支持的 PhpStorm 插件，支持路由、配置、翻译、环境变量、验证规则的补全与跳转。
+为 [Hyperf](https://www.hyperf.io) PHP 框架提供 IDE 支持的 PhpStorm 插件，支持路由、配置、翻译、环境变量、验证规则、视图模板、AOP 切面、缓存监听器的补全与跳转，以及代码生成与常用命令的快捷菜单。
 
 > **Fork 声明**：本项目 fork 自 [qiqizjl/idea-plugin-hyperf](https://github.com/qiqizjl/idea-plugin-hyperf)，原作者为 NaiXiaoXin（SeanWang）。本 fork 在原项目基础上进行了 Hyperf 3.x 适配（`@method` 魔术 Router、3.1+ 点号配置文件）、新增 `.env` 环境变量键补全跳转，并更名为 **hyperf base** 独立发布。原项目未声明开源许可证，本 fork 保留原作者署名与核心框架代码。
 
@@ -33,6 +33,41 @@
   - DTO 验证注解 `#[Validation('required|string')]` 的 `$rule` 参数（`\Hyperf\DTO\Annotation\Validation\Validation`）
   - 内置与框架一致的全套规则（`required`/`max:255`/`exists:table,column` 等）；补全项带中文注释、带参规则选中后自动补 `:`；鼠标悬停（或 Ctrl+Q）在某条规则上显示对应中文说明
   - 仅在项目安装了 `hyperf/validation` 或 `hyperf/dto` 组件时启用
+- **BASE_PATH 路径**（补全与跳转）：
+  - `BASE_PATH . '/a/b' . $v` 拼接链中的字符串，以项目根为基准补全子目录/文件（目录优先，选中目录自动补 `/` 并续弹下一级）
+  - Ctrl+B 跳到对应文件/目录，效果等同 `__DIR__` 原生路径提示
+- **视图模板**（补全与跳转）：
+  - `view('user.list')` 辅助函数（hyperf/view-engine）
+  - `\Hyperf\View\RenderInterface::render()/getContents()`、`\Hyperf\ViewEngine\Contract\FactoryInterface::make()` 方法调用
+  - 按 view-engine 的 `Finder` 规则解析：点语法转目录，`pkg::name` 走 `view.php` 的 `namespaces` 配置（含 `view_path/vendor/<ns>` 自动 hint），扩展名按 `blade.php/php/css/html` 尝试
+  - 视图根目录读取 `config/autoload/view.php` 的 `config.view_path`（缺省 `storage/view`）
+- **AOP 切面**（跳转 + 方法名补全）：
+  - `#[Aspect(classes: [...])]` 注解内与 `AbstractAspect` 子类 `$classes`/`$annotations` 属性默认值中的字符串
+  - 支持 `'App\Service\Foo::bar'` 整串与 `Foo::class . '::bar'` 拼接两种写法
+  - 类名已知时（`::` 前解析出 FQN 或拼接左侧 `::class`）输入方法名有补全提示；`'FQN::method'` 跳具体方法，方法部分支持 `*` 通配（列出全部匹配方法）；类部分带 `*` 不跳转
+- **DI 接口绑定**（悬停文档，不抢占跳转）：
+  - 悬停（或 Ctrl+Q）在接口上时，原生文档弹窗末尾追加 `Dependencies: \App\Foo\Impl`
+  - 索引项目 `config/autoload/dependencies.php` 与 vendor 组件 `ConfigProvider` 的 `dependencies`，支持 `new PriorityDefinition(X::class, n)` 权重绑定
+  - 生效规则与框架逐条对齐：项目 dependencies.php 无条件覆盖；vendor 间按 `composer.lock` 声明顺序模拟 `ProviderConfig::merge`（PriorityDefinition 形态有覆盖保护、权重高者赢、同权重 lock 靠前赢）
+- **缓存监听器**（补全与双向跳转）：
+  - `#[Cacheable(listener: "user-update")]` / `#[FailCache(listener: "...")]` 注解参数（命名/位置参数均支持）
+  - `new DeleteListenerEvent("user-update", $args)` 构造第 1 参
+  - 定向互跳：事件使用侧跳注解声明侧，声明侧列出全部使用点；两处均可补全已注册的监听器名
+- **Crontab 回调**（补全与跳转）：
+  - `#[Crontab(rule: "...", callback: "execute")]` 的 callback 字符串（命名/位置参数均支持）
+  - 跳注解所在类的同名方法；补全列出类内方法名（与框架 `[当前类, callback]` 调用语义一致）
+- **Crontab 规则**（悬停文档）：
+  - 悬停（或 Ctrl+Q）在 `#[Crontab(rule: "...")]` 或 `->setRule('...')` 的规则字符串上，显示最近 5 次执行时间
+  - 解析语义逐条对齐 `Hyperf\Crontab\Parser`：6 段带秒/5 段秒为 0、周日=0（0-6）、日与周 AND 关系、`*/n`、`a-b/n`、逗号列表
+- **Hyperf 菜单**（代码生成与快捷命令，在内置 Terminal 执行）：
+  - 主菜单栏新增顶级 **Hyperf** 菜单（仅插件启用时可见，可在设置中关闭）
+  - `Code Generation`：`gen:controller/model/command/middleware/listener/job/process/aspect/request/resource/class/constant/migration/seeder`，弹输入框收类名后执行 `php bin/hyperf.php gen:*`（gen:model 表名可留空=全部表）
+  - `Commands`：`describe:routes/listeners/aspects`、`vendor:publish`、`migrate / migrate:status / migrate:rollback`、`start`、`server:watch`、`crontab:run`、`queue:flush`、`gen:view-engine-cache`
+  - PHP 路径解析顺序：设置页 `PHP Binary Path` → 项目 CLI 解释器 → PATH 中的 `php`；Unix 风格 PHP 路径（WSL）自动把脚本路径转为 `/mnt/...` 形式
+- **命令行标记运行**（类名旁绿色运行按钮，等同 PHPUnit 测试图标体验）：
+  - `Hyperf\Command\Command` 子类的类名左侧出现运行按钮，点击在内置 Terminal 执行 `php bin/hyperf.php <name>`
+  - 命令名按框架生效优先级解析：`$signature` 首个 token → 构造函数 `parent::__construct('xx')` 首参 → `#[Command(name:)]` → `$name` 属性
+  - 检测到参数（`$signature` 含 `{...}`、注解 `arguments/options` 数组、`getArguments()/getOptions()` 覆写、`configure()` 中 `addArgument/addOption`）时先弹输入框补齐参数，无参数则直接执行
 
 ## 安装
 
@@ -58,18 +93,17 @@
 ## 版本记录
 
 - **1.0.2**：修复多份 vendor 副本（如 WSL 项目嵌套 vendor）时验证规则补全不生效的问题 —— `isInstanceOf` 改用 FQN 比较而非 PSI 对象引用比较。
-- **1.0.1**：新增验证规则补全与悬停中文文档（`FormRequest::rules()`、`ValidatorFactory::make()/validate()` 规则数组、`$scenes` 值、DTO 注解 `#[Validation(...)]`），内置与框架一致的全套规则；带参规则选中自动补 `:`；可在设置中开关（默认开启）。
-- **1.0.6**：修复 `env()` 补全在字符串字面量内未生效的问题；`ConfigFileUtil` 支持文件名含点号的配置文件前缀。
-- **1.0.5**：新增 `env()` 环境变量键的索引与补全跳转。
-- **1.0.4**：支持 Hyperf 3.1+ 配置文件名包含点号（`a.b.php` → 前缀 `a.b`）。
-- 早期版本：路由/配置/翻译基础功能，适配 Hyperf 2.x 老版本。
+- **1.0.3（未发布）**：新增验证规则补全与悬停中文文档（`FormRequest::rules()`、`ValidatorFactory::make()/validate()` 规则数组、`$scenes` 值、DTO 注解 `#[Validation(...)]`），内置与框架一致的全套规则；带参规则选中自动补 `:`；可在设置中开关（默认开启）。
+                     新增主菜单栏 **Hyperf** 顶级菜单 —— `Code Generation`（devtool `gen:*` 代码生成，弹框收类名后在内置 Terminal 执行）与 `Commands`（`describe:routes`、`migrate`、`start`、`crontab:run` 等常用命令一键执行）；设置页新增 `PHP Binary Path`（留空回退项目 CLI 解释器 → PATH）与菜单开关（默认开启）；支持 WSL 环境（Unix 风格 PHP 路径自动转换 `/mnt/...` 脚本路径）。
+                     新增命令类行标记运行按钮：`Hyperf\Command\Command` 子类类名旁的绿色图标，点击直接在内置 Terminal 执行命令，检测到参数定义（signature/注解/getArguments/configure 的 addArgument）时先弹输入框。
+                     新增 Crontab 规则悬停文档：`#[Crontab(rule: ...)]` / `->setRule(...)` 字符串上显示最近 5 次执行时间，解析语义对齐 `Hyperf\Crontab\Parser`（6 段带秒、周日=0、日周 AND）。
 
 ## 架构
 
 - `com.base.idea.hyperf.*` — 插件本体
 - `fr.adrienbrault.idea.symfony2plugin.*` — 从 Symfony 插件移植的通用 goto-completion 框架
 
-所有功能通过 GotoCompletion 框架挂载：`CompletionContributor` 负责补全、`GotoHandler` 负责跳转，二者经 `GotoCompletionUtil` 收集各 References 实现（路由/配置/翻译/env），按语言过滤后调用。索引侧用 `FileBasedIndexExtension`（配置/翻译键为 PHP PSI 索引，env 键为纯文本内容索引）。
+所有功能通过 GotoCompletion 框架挂载：`CompletionContributor` 负责补全、`GotoHandler` 负责跳转，二者经 `GotoCompletionUtil` 收集各 References 实现（路由/配置/翻译/env/验证/视图/AOP/缓存监听器），按语言过滤后调用。索引侧用 `FileBasedIndexExtension`（配置/翻译键为 PHP PSI 索引，env 键为纯文本内容索引，缓存监听器名为上下文判定的 PSI 索引）。
 
 ## 相关
 

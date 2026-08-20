@@ -15,6 +15,19 @@ import org.jetbrains.annotations.NotNull;
 
 public class CompletionContributor extends com.intellij.codeInsight.completion.CompletionContributor {
 
+    /**
+     * 字符串字面量内输入时允许自动弹出补全。
+     * 是否有建议仍由各 References 的匹配决定，无建议时平台不会弹窗。
+     */
+    @Override
+    public boolean invokeAutoPopup(@NotNull PsiElement position, char typeChar) {
+        if (position.getParent() instanceof com.jetbrains.php.lang.psi.elements.StringLiteralExpression
+                && Character.isLetter(typeChar)) {
+            return true;
+        }
+        return super.invokeAutoPopup(position, typeChar);
+    }
+
     public CompletionContributor() {
         extend(CompletionType.BASIC, PlatformPatterns.psiElement(), new CompletionProvider<CompletionParameters>() {
             @Override

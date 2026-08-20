@@ -58,4 +58,12 @@ public class IdeHelper {
     private static void enablePluginAndConfigure(@NotNull Project project) {
         HyperfSettings.getInstance(project).pluginEnabled = true;
     }
+
+    /** 弹一条警告气泡（如 bin/hyperf.php 不存在等运行前置检查失败） */
+    public static void notifyWarning(@NotNull Project project, @NotNull String content) {
+        NotificationGroupManager.getInstance()
+                .getNotificationGroup(NOTIFICATION_GROUP_ID)
+                .createNotification("hyperf base", content, NotificationType.WARNING)
+                .notify(project);
+    }
 }
