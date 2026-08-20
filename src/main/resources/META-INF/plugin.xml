@@ -17,6 +17,7 @@
         <li><b>环境变量</b>：<code>env()</code> 环境变量键的补全与跳转（读取项目根目录 <code>.env</code> 文件）</li>
         <li><b>验证规则</b>：验证规则字符串（<code>required|max:255</code>）的补全与悬停中文文档 —— 支持 <code>FormRequest::rules()</code>、<code>ValidatorFactory::make()/validate()</code> 规则数组、<code>$scenes</code> 值及 DTO 注解 <code>#[Validation(...)]</code>（需安装 hyperf/validation 或 hyperf/dto）</li>
         <li><b>Hyperf 菜单</b>：主菜单栏代码生成（devtool <code>gen:*</code>）与常用命令（<code>describe:routes</code>、<code>migrate</code>、<code>start</code> 等），在内置 Terminal 执行，支持 WSL 环境</li>
+        <li><b>命令行标记运行</b>：<code>Hyperf\Command\Command</code> 子类类名旁的运行按钮，点击在 Terminal 执行命令，有参数先弹输入框</li>
       </ul>
 
       <h2>安装与设置</h2>
