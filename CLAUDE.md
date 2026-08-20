@@ -25,7 +25,7 @@ PhpStorm 插件，为 [Hyperf](https://www.hyperf.io) PHP 框架提供 IDE 支�
 
 - 首次构建需下载 PhpStorm 2026.2 SDK（数 GB，耗时较长），之后走 Gradle 缓存。
 - 控制台输出为 GBK，乱码时管道加 `iconv -f GBK -t UTF-8`。
-- **测试已禁用**：`src/test` 依赖已删除的 `LightCodeInsightFixtureTestCase`，在 build.gradle 中通过 `sourceSets.test` exclude 排除编译，未迁移到新测试框架。
+- **测试**：纯逻辑类（不碰 IDE 平台，如 `crontab/CronExpression`）的 JUnit 4 单测可直接 `./gradlew test`；依赖已删除的 `LightCodeInsightFixtureTestCase` 的遗留 fixture 测试（`ConfigTest`、`HyperflLightCodeInsightFixtureTestCase`）在 build.gradle 中按文件名 exclude，未迁移到新测试框架。
 - `runIde -PopenProject="D:\java\hyperf-skeleton-3.2"` 可让沙箱启动后直接打开指定项目（build.gradle 中已加该参数支持）。hyperf-skeleton-3.2 的 `.idea/hyperf-plugin.xml` 已存 `pluginEnabled=true`，沙箱打开同一目录时设置直接生效，无需手动启用。
 
 ## 沙箱调试与验证
@@ -42,7 +42,7 @@ PhpStorm 插件，为 [Hyperf](https://www.hyperf.io) PHP 框架提供 IDE 支�
 ## 构建系统的关键约束（勿随意改动）
 
 - **平台依赖必须写成 `phpstorm(ideaVersion)` 括号调用**。`phpstorm ideaVersion` 空格语法会被 Groovy 解析成两条独立语句，导致平台本体依赖静默丢失，所有 IntelliJ 类（含 `PersistentStateComponent` 等核心类）编译报错。
-- **`instrumentCode` 任务已禁用**：本地 JDK 25 不是 JetBrains Runtime，缺少 JBR 特有的 `Packages` 目录，插桩会报 `... openjdk-25.0.4\Packages does not exist`。插桩仅提供 `@NotNull` 运行时断言，禁用不影响功能。
+- **插桩已通过 `intellijPlatform { instrumentCode = false }` 禁用**：本地 JDK 25 不是 JetBrains Runtime，缺少 JBR 特有的 `Packages` 目录，插桩会报 `... openjdk-25.0.4\Packages does not exist`。插桩仅提供 `@NotNull` 运行时断言，禁用不影响功能。必须用扩展属性而不是 `tasks.named('instrumentCode'){enabled=false}`——后者会让 `instrumentTestCode` 的陈旧产物留在测试 classpath 里遮蔽新编译的测试类。
 - 依赖仓库走阿里云镜像 + `intellijPlatform.defaultRepositories()`。
 
 ## 代码架构
