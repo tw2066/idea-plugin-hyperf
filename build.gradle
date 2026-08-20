@@ -65,8 +65,19 @@ tasks.named('runIde') {
     }
 }
 
-def htmlFixer = { htmlFile -> file(htmlFile).text.replace('<html>', '').replace('</html>', '') }
+// 从 CHANGELOG.md 提取首个版本段的 `- ` 条目，转成 changeNotes 的 <ul><li> HTML
+def latestChangeNotes = { ->
+    def md = file('CHANGELOG.md').text
+    def matcher = md =~ /(?ms)^## +\[[^\]]+\][^\n]*\n(.*?)(?=^## |\z)/
+    if (!matcher.find()) {
+        return ''
+    }
+    def items = matcher.group(1).readLines()
+            .findAll { it.trim().startsWith('- ') }
+            .collect { '<li>' + it.trim().substring(2).replaceAll(/`([^`]+)`/, '<code>$1</code>') + '</li>' }
+    return items.isEmpty() ? '' : '<ul>' + items.join('') + '</ul>'
+}
 
 patchPluginXml {
-    changeNotes = htmlFixer('./changelog.html')
+    changeNotes = latestChangeNotes()
 }
