@@ -41,10 +41,10 @@
   - `\Hyperf\View\RenderInterface::render()/getContents()`、`\Hyperf\ViewEngine\Contract\FactoryInterface::make()` 方法调用
   - 按 view-engine 的 `Finder` 规则解析：点语法转目录，`pkg::name` 走 `view.php` 的 `namespaces` 配置（含 `view_path/vendor/<ns>` 自动 hint），扩展名按 `blade.php/php/css/html` 尝试
   - 视图根目录读取 `config/autoload/view.php` 的 `config.view_path`（缺省 `storage/view`）
-- **AOP 切面**（跳转，不做补全）：
-  - `#[Aspect(classes: ['App\Service\Foo::bar', 'App\Service\Foo::*Method'])]` 注解内的字符串
-  - `AbstractAspect` 子类的 `$classes`/`$annotations` 属性默认值中的字符串
-  - `'FQN::method'` 跳具体方法；方法部分支持 `*` 通配（列出全部匹配方法）；类部分带 `*` 不跳转
+- **AOP 切面**（跳转 + 方法名补全）：
+  - `#[Aspect(classes: [...])]` 注解内与 `AbstractAspect` 子类 `$classes`/`$annotations` 属性默认值中的字符串
+  - 支持 `'App\Service\Foo::bar'` 整串与 `Foo::class . '::bar'` 拼接两种写法
+  - 类名已知时（`::` 前解析出 FQN 或拼接左侧 `::class`）输入方法名有补全提示；`'FQN::method'` 跳具体方法，方法部分支持 `*` 通配（列出全部匹配方法）；类部分带 `*` 不跳转
 - **DI 接口绑定**（悬停文档，不抢占跳转）：
   - 悬停（或 Ctrl+Q）在接口上时，原生文档弹窗末尾追加 `Dependencies: \App\Foo\Impl`
   - 索引项目 `config/autoload/dependencies.php` 与 vendor 组件 `ConfigProvider` 的 `dependencies`，支持 `new PriorityDefinition(X::class, n)` 权重绑定
@@ -61,6 +61,10 @@
   - `Code Generation`：`gen:controller/model/command/middleware/listener/job/process/aspect/request/resource/class/constant/migration/seeder`，弹输入框收类名后执行 `php bin/hyperf.php gen:*`（gen:model 表名可留空=全部表）
   - `Commands`：`describe:routes/listeners/aspects`、`vendor:publish`、`migrate / migrate:status / migrate:rollback`、`start`、`server:watch`、`crontab:run`、`queue:flush`、`gen:view-engine-cache`
   - PHP 路径解析顺序：设置页 `PHP Binary Path` → 项目 CLI 解释器 → PATH 中的 `php`；Unix 风格 PHP 路径（WSL）自动把脚本路径转为 `/mnt/...` 形式
+- **命令行标记运行**（类名旁绿色运行按钮，等同 PHPUnit 测试图标体验）：
+  - `Hyperf\Command\Command` 子类的类名左侧出现运行按钮，点击在内置 Terminal 执行 `php bin/hyperf.php <name>`
+  - 命令名按框架生效优先级解析：`$signature` 首个 token → 构造函数 `parent::__construct('xx')` 首参 → `#[Command(name:)]` → `$name` 属性
+  - 检测到参数（`$signature` 含 `{...}`、注解 `arguments/options` 数组、`getArguments()/getOptions()` 覆写、`configure()` 中 `addArgument/addOption`）时先弹输入框补齐参数，无参数则直接执行
 
 ## 安装
 
@@ -88,6 +92,7 @@
 - **1.0.2**：修复多份 vendor 副本（如 WSL 项目嵌套 vendor）时验证规则补全不生效的问题 —— `isInstanceOf` 改用 FQN 比较而非 PSI 对象引用比较。
 - **1.0.3（未发布）**：新增验证规则补全与悬停中文文档（`FormRequest::rules()`、`ValidatorFactory::make()/validate()` 规则数组、`$scenes` 值、DTO 注解 `#[Validation(...)]`），内置与框架一致的全套规则；带参规则选中自动补 `:`；可在设置中开关（默认开启）。
                      新增主菜单栏 **Hyperf** 顶级菜单 —— `Code Generation`（devtool `gen:*` 代码生成，弹框收类名后在内置 Terminal 执行）与 `Commands`（`describe:routes`、`migrate`、`start`、`crontab:run` 等常用命令一键执行）；设置页新增 `PHP Binary Path`（留空回退项目 CLI 解释器 → PATH）与菜单开关（默认开启）；支持 WSL 环境（Unix 风格 PHP 路径自动转换 `/mnt/...` 脚本路径）。
+                     新增命令类行标记运行按钮：`Hyperf\Command\Command` 子类类名旁的绿色图标，点击直接在内置 Terminal 执行命令，检测到参数定义（signature/注解/getArguments/configure 的 addArgument）时先弹输入框。
 
 ## 架构
 

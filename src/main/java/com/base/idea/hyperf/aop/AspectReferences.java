@@ -5,6 +5,8 @@ import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.jetbrains.php.lang.PhpLanguage;
+import com.jetbrains.php.lang.psi.elements.ClassConstantReference;
+import com.jetbrains.php.lang.psi.elements.ConcatenationExpression;
 import com.jetbrains.php.lang.psi.elements.Field;
 import com.jetbrains.php.lang.psi.elements.Method;
 import com.jetbrains.php.lang.psi.elements.PhpAttribute;
@@ -59,7 +61,11 @@ public class AspectReferences implements GotoCompletionLanguageRegistrar {
                 return null;
             }
             StringLiteralExpression literal = (StringLiteralExpression) parent;
-            if (isAspectAttributeArgument(literal) || isAspectFieldDefault(literal)) {
+            boolean inAspectContext = isAspectAttributeArgument(literal) || isAspectFieldDefault(literal);
+            if (inAspectContext && matchClassConstantConcat(literal) != null) {
+                return new AspectConcatProvider(parent);
+            }
+            if (inAspectContext) {
                 return new AspectClassProvider(parent);
             }
             return null;
@@ -94,6 +100,133 @@ public class AspectReferences implements GotoCompletionLanguageRegistrar {
         return phpClass != null && new Symfony2InterfacesUtil().isInstanceOf(phpClass, ABSTRACT_ASPECT);
     }
 
+    /**
+     * 匹配 {@code Builder::class . '::toSql'} 这类「类常量 + 方法名字符串」拼接。
+     *
+     * <p>PHP 拼接左结合，字面量须是 concat 的右操作数，左操作数是 {@code Xxx::class}
+     * 常量引用（或已解析出类名的子拼接）。返回左操作数解析出的类 FQN，不匹配返回 null。
+     */
+    @Nullable
+    private static String matchClassConstantConcat(@NotNull StringLiteralExpression literal) {
+        PsiElement parent = literal.getParent();
+        if (!(parent instanceof ConcatenationExpression) || ((ConcatenationExpression) parent).getRightOperand() != literal) {
+            return null;
+        }
+        PsiElement left = ((ConcatenationExpression) parent).getLeftOperand();
+        return left == null ? null : evalClassConstant(left);
+    }
+
+    /** 左子树求类名：Xxx::class / Xxx::class 常量 / 含类常量的子拼接；解析不出返回 null */
+    @Nullable
+    private static String evalClassConstant(@NotNull PsiElement expr) {
+        if (expr instanceof ClassConstantReference) {
+            // 仅 ::class（排除 Foo::OTHER_CONST）
+            if (!"class".equals(((ClassConstantReference) expr).getName())) {
+                return null;
+            }
+            return PhpElementsUtil.getClassConstantFqn((ClassConstantReference) expr);
+        }
+        if (expr instanceof ConcatenationExpression) {
+            PsiElement left = ((ConcatenationExpression) expr).getLeftOperand();
+            PsiElement right = ((ConcatenationExpression) expr).getRightOperand();
+            // 左子树能解析出类名则直接用（拼接字符串如 '' 不影响类名）
+            String leftClass = left == null ? null : evalClassConstant(left);
+            if (leftClass != null) {
+                return leftClass;
+            }
+            return right == null ? null : evalClassConstant(right);
+        }
+        return null;
+    }
+
+    /** 把类/方法解析为跳转目标加入 out；类带通配符跳过，方法支持精确与 * 通配 */
+    private static void addTargets(@NotNull com.intellij.openapi.project.Project project,
+                                   @NotNull String classFqn, @Nullable String methodPart,
+                                   @NotNull Set<PsiElement> out) {
+        for (PhpClass phpClass : PhpIndex.getInstance(project).getAnyByFQN("\\" + classFqn)) {
+            if (methodPart == null || methodPart.isEmpty()) {
+                out.add(phpClass);
+                continue;
+            }
+            if (methodPart.contains("*")) {
+                boolean matched = false;
+                Pattern pattern = wildcardToPattern(methodPart);
+                for (Method method : phpClass.getMethods()) {
+                    if (pattern.matcher(method.getName()).matches()) {
+                        out.add(method);
+                        matched = true;
+                    }
+                }
+                if (!matched) {
+                    out.add(phpClass);
+                }
+                continue;
+            }
+            Method method = PhpElementsUtil.getClassMethod(phpClass, methodPart);
+            out.add(method != null ? method : phpClass);
+        }
+    }
+
+    /** {@code *Method} → 全串匹配正则（* 转 .*, 其余逐段 quote） */
+    @NotNull
+    private static Pattern wildcardToPattern(@NotNull String wildcard) {
+        StringBuilder regex = new StringBuilder();
+        String[] segments = wildcard.split("\\*", -1);
+        for (int i = 0; i < segments.length; i++) {
+            if (i > 0) {
+                regex.append(".*");
+            }
+            if (!segments[i].isEmpty()) {
+                regex.append(Pattern.quote(segments[i]));
+            }
+        }
+        return Pattern.compile(regex.toString());
+    }
+
+    /** 列出指定类的方法名补全项（排除魔术方法），typeText 标注所属类 */
+    private static void addMethodCompletions(@NotNull com.intellij.openapi.project.Project project,
+                                             @NotNull String classFqn, @NotNull String prefix,
+                                             @NotNull com.intellij.codeInsight.completion.CompletionResultSet resultSet) {
+        com.intellij.codeInsight.completion.CompletionResultSet filtered = resultSet.withPrefixMatcher(prefix);
+        for (PhpClass phpClass : PhpIndex.getInstance(project).getAnyByFQN("\\" + classFqn)) {
+            for (Method method : phpClass.getMethods()) {
+                if (method.getName().startsWith("__")) {
+                    continue;
+                }
+                filtered.addElement(com.intellij.codeInsight.lookup.LookupElementBuilder
+                        .create(method.getName())
+                        .withIcon(method.getIcon(0))
+                        .withTypeText(phpClass.getName(), true));
+            }
+        }
+    }
+
+    /** 取补全原始位置所在的字符串字面量（规避补全副本 dummy 占位符） */
+    @Nullable
+    private static StringLiteralExpression originalLiteral(@NotNull fr.adrienbrault.idea.symfony2plugin.codeInsight.completion.CompletionContributorParameter parameter) {
+        PsiElement original = parameter.getCompletionParameters().getOriginalPosition();
+        if (original == null || !(original.getParent() instanceof StringLiteralExpression)) {
+            return null;
+        }
+        return (StringLiteralExpression) original.getParent();
+    }
+
+    /** caret 在字符串内容内的前缀文本（原文件 offset - 字面量起始 - 前引号宽度） */
+    @Nullable
+    private static String beforeCaret(@NotNull fr.adrienbrault.idea.symfony2plugin.codeInsight.completion.CompletionContributorParameter parameter,
+                                      @Nullable StringLiteralExpression literal) {
+        if (literal == null) {
+            return null;
+        }
+        int caretInContent = parameter.getCompletionParameters().getOffset()
+                - literal.getTextRange().getStartOffset() - 1;
+        String contents = literal.getContents();
+        if (caretInContent < 0 || caretInContent > contents.length()) {
+            return null;
+        }
+        return contents.substring(0, caretInContent);
+    }
+
     /** 切面类/方法字符串的跳转目标提供者（仅跳转） */
     private static class AspectClassProvider extends GotoCompletionProvider {
 
@@ -106,6 +239,26 @@ public class AspectReferences implements GotoCompletionLanguageRegistrar {
         @Override
         public Collection<com.intellij.codeInsight.lookup.LookupElement> getLookupElements() {
             return java.util.Collections.emptyList();
+        }
+
+        /** 整串写法：{@code 'App\Svc\Foo::'} 之后补全该类方法名 */
+        @Override
+        public void getLookupElements(fr.adrienbrault.idea.symfony2plugin.codeInsight.completion.CompletionContributorParameter parameter) {
+            StringLiteralExpression literal = originalLiteral(parameter);
+            String beforeCaret = beforeCaret(parameter, literal);
+            if (beforeCaret == null) {
+                return;
+            }
+            int separator = beforeCaret.indexOf("::");
+            if (separator < 0) {
+                return;
+            }
+            String classPart = beforeCaret.substring(0, separator);
+            if (classPart.isEmpty() || classPart.contains("*")) {
+                return;
+            }
+            addMethodCompletions(getProject(), classPart, beforeCaret.substring(separator + 2),
+                    parameter.getCompletionResultSet());
         }
 
         @NotNull
@@ -125,46 +278,54 @@ public class AspectReferences implements GotoCompletionLanguageRegistrar {
             if (classPart.isEmpty() || classPart.contains("*")) {
                 return targets;
             }
-
-            for (PhpClass phpClass : PhpIndex.getInstance(getProject()).getAnyByFQN("\\" + classPart)) {
-                if (methodPart == null || methodPart.isEmpty()) {
-                    targets.add(phpClass);
-                    continue;
-                }
-                if (methodPart.contains("*")) {
-                    boolean matched = false;
-                    Pattern pattern = wildcardToPattern(methodPart);
-                    for (Method method : phpClass.getMethods()) {
-                        if (pattern.matcher(method.getName()).matches()) {
-                            targets.add(method);
-                            matched = true;
-                        }
-                    }
-                    if (!matched) {
-                        targets.add(phpClass);
-                    }
-                    continue;
-                }
-                Method method = PhpElementsUtil.getClassMethod(phpClass, methodPart);
-                targets.add(method != null ? method : phpClass);
-            }
+            addTargets(getProject(), classPart, methodPart, targets);
             return targets;
         }
+    }
 
-        /** {@code *Method} → 全串匹配正则（* 转 .*, 其余逐段 quote） */
+    /** {@code Builder::class . '::toSql'} 拼接写法的跳转提供者（仅跳转）：方法名在字符串里，类名取左侧 ::class */
+    private static class AspectConcatProvider extends GotoCompletionProvider {
+
+        AspectConcatProvider(PsiElement element) {
+            super(element);
+        }
+
         @NotNull
-        private static Pattern wildcardToPattern(@NotNull String wildcard) {
-            StringBuilder regex = new StringBuilder();
-            String[] segments = wildcard.split("\\*", -1);
-            for (int i = 0; i < segments.length; i++) {
-                if (i > 0) {
-                    regex.append(".*");
-                }
-                if (!segments[i].isEmpty()) {
-                    regex.append(Pattern.quote(segments[i]));
-                }
+        @Override
+        public Collection<com.intellij.codeInsight.lookup.LookupElement> getLookupElements() {
+            return java.util.Collections.emptyList();
+        }
+
+        /** 拼接写法：{@code Foo::class . '::'} 之后补全左侧类的方法名 */
+        @Override
+        public void getLookupElements(fr.adrienbrault.idea.symfony2plugin.codeInsight.completion.CompletionContributorParameter parameter) {
+            StringLiteralExpression literal = originalLiteral(parameter);
+            String beforeCaret = beforeCaret(parameter, literal);
+            if (literal == null || beforeCaret == null) {
+                return;
             }
-            return Pattern.compile(regex.toString());
+            String classFqn = matchClassConstantConcat(literal);
+            if (classFqn == null) {
+                return;
+            }
+            String prefix = beforeCaret.startsWith("::") ? beforeCaret.substring(2) : beforeCaret;
+            addMethodCompletions(getProject(), classFqn, prefix, parameter.getCompletionResultSet());
+        }
+
+        @NotNull
+        @Override
+        public Collection<PsiElement> getPsiTargets(StringLiteralExpression element) {
+            Set<PsiElement> targets = new HashSet<>();
+            String classFqn = matchClassConstantConcat(element);
+            if (classFqn == null) {
+                return targets;
+            }
+            String methodPart = element.getContents();
+            if (methodPart.startsWith("::")) {
+                methodPart = methodPart.substring(2);
+            }
+            addTargets(getProject(), classFqn, methodPart, targets);
+            return targets;
         }
     }
 }
