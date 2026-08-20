@@ -16,6 +16,7 @@ import com.jetbrains.php.lang.psi.elements.PhpClass;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
 import com.base.idea.hyperf.HyperfStartupActivity;
 import com.base.idea.hyperf.console.HyperfConsoleRunner;
+import com.base.idea.hyperf.util.PsiElementUtils;
 import fr.adrienbrault.idea.symfony2plugin.Symfony2InterfacesUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -85,7 +86,7 @@ public class CommandRunLineMarkerContributor extends RunLineMarkerContributor {
             if (attribute.getParameterList() == null) {
                 continue;
             }
-            String name = stringValue(attribute.getParameterList().getParameter("name", 0));
+            String name = stringValue(PsiElementUtils.getParameter(attribute.getParameterList(), "name", 0));
             if (name != null && !name.isEmpty()) {
                 return name;
             }
@@ -127,8 +128,8 @@ public class CommandRunLineMarkerContributor extends RunLineMarkerContributor {
             if (fqn == null || !fqn.equalsIgnoreCase(COMMAND_ANNOTATION) || attribute.getParameterList() == null) {
                 continue;
             }
-            if (hasArrayItems(attribute.getParameterList().getParameter("arguments", 1))
-                    || hasArrayItems(attribute.getParameterList().getParameter("options", 2))) {
+            if (hasArrayItems(PsiElementUtils.getParameter(attribute.getParameterList(), "arguments", 1))
+                    || hasArrayItems(PsiElementUtils.getParameter(attribute.getParameterList(), "options", 2))) {
                 return true;
             }
         }

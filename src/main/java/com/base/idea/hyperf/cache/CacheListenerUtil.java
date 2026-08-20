@@ -7,6 +7,7 @@ import com.jetbrains.php.lang.psi.elements.NewExpression;
 import com.jetbrains.php.lang.psi.elements.ParameterList;
 import com.jetbrains.php.lang.psi.elements.PhpAttribute;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
+import com.base.idea.hyperf.util.PsiElementUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -49,8 +50,8 @@ public class CacheListenerUtil {
         if (parameterList == null) {
             return false;
         }
-        // getParameter(name, index)：命中命名参数 listener，无名参数时回退第 4 个位置参数
-        PsiElement listenerParam = parameterList.getParameter("listener", 3);
+        // 命中命名参数 listener，无名参数时回退第 4 个位置参数
+        PsiElement listenerParam = PsiElementUtils.getParameter(parameterList, "listener", 3);
         return listenerParam != null && PsiTreeUtil.isAncestor(listenerParam, literal, false);
     }
 

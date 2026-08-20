@@ -20,6 +20,7 @@
 ### 修复
 
 - 项目在 WSL 文件系统时，菜单命令的 UNC 脚本路径转换
+- 替换平台 internal API 调用（`ParameterList.getParameter(String, int)`），消除 Marketplace 验证告警
 
 ## [1.0.2]
 
