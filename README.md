@@ -56,6 +56,9 @@
 - **Crontab 回调**（补全与跳转）：
   - `#[Crontab(rule: "...", callback: "execute")]` 的 callback 字符串（命名/位置参数均支持）
   - 跳注解所在类的同名方法；补全列出类内方法名（与框架 `[当前类, callback]` 调用语义一致）
+- **Crontab 规则**（悬停文档）：
+  - 悬停（或 Ctrl+Q）在 `#[Crontab(rule: "...")]` 或 `->setRule('...')` 的规则字符串上，显示最近 5 次执行时间
+  - 解析语义逐条对齐 `Hyperf\Crontab\Parser`：6 段带秒/5 段秒为 0、周日=0（0-6）、日与周 AND 关系、`*/n`、`a-b/n`、逗号列表
 - **Hyperf 菜单**（代码生成与快捷命令，在内置 Terminal 执行）：
   - 主菜单栏新增顶级 **Hyperf** 菜单（仅插件启用时可见，可在设置中关闭）
   - `Code Generation`：`gen:controller/model/command/middleware/listener/job/process/aspect/request/resource/class/constant/migration/seeder`，弹输入框收类名后执行 `php bin/hyperf.php gen:*`（gen:model 表名可留空=全部表）
@@ -93,6 +96,7 @@
 - **1.0.3（未发布）**：新增验证规则补全与悬停中文文档（`FormRequest::rules()`、`ValidatorFactory::make()/validate()` 规则数组、`$scenes` 值、DTO 注解 `#[Validation(...)]`），内置与框架一致的全套规则；带参规则选中自动补 `:`；可在设置中开关（默认开启）。
                      新增主菜单栏 **Hyperf** 顶级菜单 —— `Code Generation`（devtool `gen:*` 代码生成，弹框收类名后在内置 Terminal 执行）与 `Commands`（`describe:routes`、`migrate`、`start`、`crontab:run` 等常用命令一键执行）；设置页新增 `PHP Binary Path`（留空回退项目 CLI 解释器 → PATH）与菜单开关（默认开启）；支持 WSL 环境（Unix 风格 PHP 路径自动转换 `/mnt/...` 脚本路径）。
                      新增命令类行标记运行按钮：`Hyperf\Command\Command` 子类类名旁的绿色图标，点击直接在内置 Terminal 执行命令，检测到参数定义（signature/注解/getArguments/configure 的 addArgument）时先弹输入框。
+                     新增 Crontab 规则悬停文档：`#[Crontab(rule: ...)]` / `->setRule(...)` 字符串上显示最近 5 次执行时间，解析语义对齐 `Hyperf\Crontab\Parser`（6 段带秒、周日=0、日周 AND）。
 
 ## 架构
 

@@ -43,6 +43,8 @@
         <lang.documentationProvider language="PHP"
                 implementationClass="com.base.idea.hyperf.validation.ValidationDocumentationProvider"/>
         <lang.documentationProvider language="PHP" order="first"
+                implementationClass="com.base.idea.hyperf.crontab.CrontabRuleDocumentationProvider"/>
+        <lang.documentationProvider language="PHP" order="first"
                 implementationClass="com.base.idea.hyperf.di.DiBindingDocumentationProvider"/>
 
         <projectService serviceImplementation="com.base.idea.hyperf.HyperfSettings"/>
