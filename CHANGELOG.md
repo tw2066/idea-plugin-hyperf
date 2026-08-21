@@ -1,12 +1,16 @@
 # Changelog
 
 本插件所有版本的显著变更。格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
-
 ## [1.0.4]
 
 ### 新增
 
 - XXL-JOB 标记运行：`#[XxlJob]` 注解的 Job 类（实现 JobHandlerInterface）/方法名旁运行按钮，点击弹窗输入 `--params` 后在 Terminal 执行 `execute:xxl-job --handler=<name>`（需安装 hyperf/xxl-job-incubator）
+
+## [1.0.3]
+
+### 新增
+
 - 视图模板：`view()` / `RenderInterface::render()` / `getContents()` / `FactoryInterface::make()` 模板名补全与跳转（点语法 + `pkg::name` 命名空间，按 view.php 的 view_path / namespaces 解析）
 - AOP 切面：`#[Aspect]` 注解与 `AbstractAspect` 的 `$classes` / `$annotations` 中 `'FQN::method'` 字符串跳转；支持 `Foo::class . '::method'` 拼接写法与方法名 `*` 通配；类名已知时方法名输入补全
 - 缓存监听器：`#[Cacheable(listener: "...")]` / `#[FailCache]` 与 `new DeleteListenerEvent("...")` 监听器名的补全与定向互跳
