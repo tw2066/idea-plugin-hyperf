@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.terminal.ui.TerminalWidget;
+import com.base.idea.hyperf.util.HyperfRootUtil;
 import com.base.idea.hyperf.util.IdeHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.terminal.TerminalToolWindowManager;
@@ -21,17 +22,15 @@ public class HyperfConsoleRunner {
      * @param commandLine hyperf.php 之后的参数片段，如 {@code "gen:controller FooController"}
      */
     public static void runInTerminal(@NotNull Project project, @NotNull String commandLine) {
-        VirtualFile baseDir = project.getBaseDir();
-        if (baseDir == null) {
-            return;
-        }
-        if (VfsUtil.findRelativeFile(baseDir, "bin", "hyperf.php") == null) {
-            IdeHelper.notifyWarning(project, "bin/hyperf.php not found in project root — is this a Hyperf project?");
+        // 命令锚定 Hyperf 应用根（支持应用在项目子目录的场景）
+        VirtualFile rootDir = HyperfRootUtil.resolve(project);
+        if (rootDir == null || VfsUtil.findRelativeFile(rootDir, "bin", "hyperf.php") == null) {
+            IdeHelper.notifyWarning(project, "bin/hyperf.php not found — is this a Hyperf project?");
             return;
         }
 
         String phpPath = PhpBinaryResolver.resolve(project);
-        String basePath = baseDir.getPath();
+        String basePath = rootDir.getPath();
         String scriptPath = basePath + "/bin/hyperf.php";
         if (isUnixLike(phpPath)) {
             // PHP 解释器是 Unix 路径（如 WSL 的 /usr/bin/php），脚本路径也要转成 WSL 形式
