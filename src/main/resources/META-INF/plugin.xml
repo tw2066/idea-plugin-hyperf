@@ -18,6 +18,7 @@
         <li><b>验证规则</b>：验证规则字符串（<code>required|max:255</code>）的补全与悬停中文文档 —— 支持 <code>FormRequest::rules()</code>、<code>ValidatorFactory::make()/validate()</code> 规则数组、<code>$scenes</code> 值及 DTO 注解 <code>#[Validation(...)]</code>（需安装 hyperf/validation 或 hyperf/dto）</li>
         <li><b>Hyperf 菜单</b>：主菜单栏代码生成（devtool <code>gen:*</code>）与常用命令（<code>describe:routes</code>、<code>migrate</code>、<code>start</code> 等），在内置 Terminal 执行，支持 WSL 环境</li>
         <li><b>命令行标记运行</b>：<code>Hyperf\Command\Command</code> 子类类名旁的运行按钮，点击在 Terminal 执行命令，有参数先弹输入框</li>
+        <li><b>XXL-JOB 标记运行</b>：<code>#[XxlJob]</code> 注解的 Job 类/方法名旁的运行按钮，点击弹窗输入 <code>--params</code> 后在 Terminal 执行 <code>execute:xxl-job</code>（需安装 hyperf/xxl-job-incubator）</li>
       </ul>
 
       <h2>安装与设置</h2>
@@ -40,6 +41,8 @@
                 implementation="fr.adrienbrault.idea.symfony2plugin.codeInsight.navigation.GotoHandler"/>
         <runLineMarkerContributor language="PHP"
                 implementationClass="com.base.idea.hyperf.command.CommandRunLineMarkerContributor"/>
+        <runLineMarkerContributor language="PHP"
+                implementationClass="com.base.idea.hyperf.xxljob.XxlJobRunLineMarkerContributor"/>
         <lang.documentationProvider language="PHP"
                 implementationClass="com.base.idea.hyperf.validation.ValidationDocumentationProvider"/>
         <lang.documentationProvider language="PHP" order="first"

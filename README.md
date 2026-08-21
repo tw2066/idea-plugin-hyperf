@@ -68,6 +68,10 @@
   - `Hyperf\Command\Command` 子类的类名左侧出现运行按钮，点击在内置 Terminal 执行 `php bin/hyperf.php <name>`
   - 命令名按框架生效优先级解析：`$signature` 首个 token → 构造函数 `parent::__construct('xx')` 首参 → `#[Command(name:)]` → `$name` 属性
   - 检测到参数（`$signature` 含 `{...}`、注解 `arguments/options` 数组、`getArguments()/getOptions()` 覆写、`configure()` 中 `addArgument/addOption`）时先弹输入框补齐参数，无参数则直接执行
+- **XXL-JOB 标记运行**（hyperf/xxl-job-incubator，类名/方法名旁绿色运行按钮）：
+  - 类形式：实现 `Hyperf\XxlJob\Handler\JobHandlerInterface`（如继承 `AbstractJobHandler`）且类上带 `#[XxlJob('name')]`，按钮挂在类名上
+  - 方法形式：任意方法上带 `#[XxlJob('name')]`，按钮挂在方法名上；handler 名恒为注解 value 值（与框架注册逻辑一致，无类名/方法名兜底），value 为空不显示
+  - 点击先弹 `--params` 输入框（留空=不带参数），在内置 Terminal 执行 `php bin/hyperf.php execute:xxl-job --handler=<name>`
 
 ## 安装
 
@@ -93,10 +97,11 @@
 ## 版本记录
 
 - **1.0.2**：修复多份 vendor 副本（如 WSL 项目嵌套 vendor）时验证规则补全不生效的问题 —— `isInstanceOf` 改用 FQN 比较而非 PSI 对象引用比较。
-- **1.0.3（未发布）**：新增验证规则补全与悬停中文文档（`FormRequest::rules()`、`ValidatorFactory::make()/validate()` 规则数组、`$scenes` 值、DTO 注解 `#[Validation(...)]`），内置与框架一致的全套规则；带参规则选中自动补 `:`；可在设置中开关（默认开启）。
+- **1.0.4**：新增验证规则补全与悬停中文文档（`FormRequest::rules()`、`ValidatorFactory::make()/validate()` 规则数组、`$scenes` 值、DTO 注解 `#[Validation(...)]`），内置与框架一致的全套规则；带参规则选中自动补 `:`；可在设置中开关（默认开启）。
                      新增主菜单栏 **Hyperf** 顶级菜单 —— `Code Generation`（devtool `gen:*` 代码生成，弹框收类名后在内置 Terminal 执行）与 `Commands`（`describe:routes`、`migrate`、`start`、`crontab:run` 等常用命令一键执行）；设置页新增 `PHP Binary Path`（留空回退项目 CLI 解释器 → PATH）与菜单开关（默认开启）；支持 WSL 环境（Unix 风格 PHP 路径自动转换 `/mnt/...` 脚本路径）。
                      新增命令类行标记运行按钮：`Hyperf\Command\Command` 子类类名旁的绿色图标，点击直接在内置 Terminal 执行命令，检测到参数定义（signature/注解/getArguments/configure 的 addArgument）时先弹输入框。
                      新增 Crontab 规则悬停文档：`#[Crontab(rule: ...)]` / `->setRule(...)` 字符串上显示最近 5 次执行时间，解析语义对齐 `Hyperf\Crontab\Parser`（6 段带秒、周日=0、日周 AND）。
+                     新增 XXL-JOB 行标记运行按钮：`#[XxlJob]` 注解的 Job 类/方法名旁的绿色图标（需安装 hyperf/xxl-job-incubator），点击弹窗输入 `--params`（可留空）后在内置 Terminal 执行 `execute:xxl-job --handler=<name>`。
 
 ## 架构
 
