@@ -14,6 +14,7 @@ import com.jetbrains.php.lang.psi.elements.ConcatenationExpression;
 import com.jetbrains.php.lang.psi.elements.ConstantReference;
 import com.jetbrains.php.lang.psi.elements.PhpReturn;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
+import com.base.idea.hyperf.util.HyperfRootUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,19 +53,20 @@ public class ViewConfigUtil {
         }
     }
 
-    /** 收集项目全部视图根目录（默认根 + namespaces 配置），目录不存在则跳过 */
+    /** 收集项目全部视图根目录（默认根 + namespaces 配置），目录不存在则跳过；
+     *  路径基于 Hyperf 应用根解析，支持应用在项目子目录的场景 */
     @NotNull
     public static List<ViewRoot> getViewRoots(@NotNull Project project) {
         List<ViewRoot> roots = new ArrayList<>();
-        VirtualFile baseDir = project.getBaseDir();
-        if (baseDir == null) {
+        VirtualFile rootDir = HyperfRootUtil.resolve(project);
+        if (rootDir == null) {
             return roots;
         }
 
         String viewPath = DEFAULT_VIEW_PATH;
         Map<String, List<String>> namespaces = new LinkedHashMap<>();
 
-        VirtualFile configFile = VfsUtil.findRelativeFile(baseDir, "config", "autoload", "view.php");
+        VirtualFile configFile = VfsUtil.findRelativeFile(rootDir, "config", "autoload", "view.php");
         if (configFile != null) {
             PsiFile psiFile = PsiManager.getInstance(project).findFile(configFile);
             if (psiFile instanceof PhpFile) {
@@ -80,7 +82,7 @@ public class ViewConfigUtil {
             }
         }
 
-        VirtualFile defaultDir = resolveUnderBase(baseDir, viewPath);
+        VirtualFile defaultDir = resolveUnderBase(rootDir, viewPath);
         if (defaultDir != null && defaultDir.isDirectory()) {
             roots.add(new ViewRoot(null, defaultDir));
         }
@@ -96,7 +98,7 @@ public class ViewConfigUtil {
                 }
             }
             for (String path : entry.getValue()) {
-                VirtualFile dir = resolveUnderBase(baseDir, path);
+                VirtualFile dir = resolveUnderBase(rootDir, path);
                 if (dir != null && dir.isDirectory() && seenDirs.add(dir.getPath())) {
                     roots.add(new ViewRoot(entry.getKey(), dir));
                 }

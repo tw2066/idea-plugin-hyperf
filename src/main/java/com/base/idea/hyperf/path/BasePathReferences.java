@@ -18,6 +18,7 @@ import com.jetbrains.php.lang.psi.elements.ConcatenationExpression;
 import com.jetbrains.php.lang.psi.elements.ConstantReference;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
 import com.base.idea.hyperf.HyperfStartupActivity;
+import com.base.idea.hyperf.util.HyperfRootUtil;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionLanguageRegistrar;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionProvider;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionRegistrarParameter;
@@ -33,10 +34,11 @@ import java.util.Collections;
 /**
  * {@code BASE_PATH} 常量拼接路径的补全与跳转，效果等同 {@code __DIR__} 的原生路径提示。
  *
- * <p>Hyperf 骨架在入口文件 {@code define('BASE_PATH', dirname(__DIR__))}，即项目根目录；
+ * <p>Hyperf 骨架在入口文件 {@code define('BASE_PATH', dirname(__DIR__))}，即应用根目录；
  * PhpStorm 不会对 define 常量做路径补全，这里手动实现：
  * 匹配 {@code BASE_PATH . '/data-offline/load/' . $path} 这类拼接链中位于 BASE_PATH 之后、
- * 且与 BASE_PATH 之间只隔字符串字面量的字符串，以项目根目录为基准列出子目录/文件补全，
+ * 且与 BASE_PATH 之间只隔字符串字面量的字符串，以 Hyperf 应用根目录
+ * （{@link HyperfRootUtil} 解析，支持应用在项目子目录的场景）为基准列出子目录/文件补全，
  * 并支持 Ctrl+B 跳到对应文件/目录。
  */
 public class BasePathReferences implements GotoCompletionLanguageRegistrar {
@@ -124,7 +126,7 @@ public class BasePathReferences implements GotoCompletionLanguageRegistrar {
         }
 
         /**
-         * 列出「项目根 + caret 前已输入目录段」下的子项。
+         * 列出「Hyperf 应用根 + caret 前已输入目录段」下的子项。
          *
          * <p>目录排在文件前（priority 1 > 0），选中目录自动补 "/" 并重新弹出补全。
          * 前缀与路径从真实文件文本（getOriginalPosition）重算，
@@ -139,8 +141,8 @@ public class BasePathReferences implements GotoCompletionLanguageRegistrar {
             StringLiteralExpression literal = (StringLiteralExpression) original.getParent();
 
             String basePrefix = matchBasePathConcat(literal);
-            VirtualFile baseDir = getProject().getBaseDir();
-            if (basePrefix == null || baseDir == null) {
+            VirtualFile rootDir = HyperfRootUtil.resolve(getProject());
+            if (basePrefix == null || rootDir == null) {
                 return;
             }
 
@@ -157,7 +159,7 @@ public class BasePathReferences implements GotoCompletionLanguageRegistrar {
             String dirPart = lastSlash < 0 ? "" : typed.substring(0, lastSlash);
             String prefix = lastSlash < 0 ? typed : typed.substring(lastSlash + 1);
 
-            VirtualFile dir = resolveUnderBase(baseDir, dirPart);
+            VirtualFile dir = resolveUnderBase(rootDir, dirPart);
             if (dir == null || !dir.isDirectory()) {
                 return;
             }
@@ -193,15 +195,15 @@ public class BasePathReferences implements GotoCompletionLanguageRegistrar {
         @Override
         public Collection<PsiElement> getPsiTargets(StringLiteralExpression element) {
             String basePrefix = matchBasePathConcat(element);
-            VirtualFile baseDir = getProject().getBaseDir();
-            if (basePrefix == null || baseDir == null) {
+            VirtualFile rootDir = HyperfRootUtil.resolve(getProject());
+            if (basePrefix == null || rootDir == null) {
                 return Collections.emptyList();
             }
             String fullPath = basePrefix + element.getContents();
             if (StringUtil.isEmptyOrSpaces(fullPath)) {
                 return Collections.emptyList();
             }
-            VirtualFile target = resolveUnderBase(baseDir, fullPath);
+            VirtualFile target = resolveUnderBase(rootDir, fullPath);
             if (target == null) {
                 return Collections.emptyList();
             }

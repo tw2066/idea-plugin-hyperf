@@ -13,6 +13,7 @@ import com.jetbrains.php.lang.psi.elements.PhpAttribute;
 import com.jetbrains.php.lang.psi.elements.PhpClass;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
 import com.base.idea.hyperf.HyperfStartupActivity;
+import com.base.idea.hyperf.util.PsiElementUtils;
 import fr.adrienbrault.idea.symfony2plugin.Symfony2InterfacesUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -108,7 +109,7 @@ public class CrontabRuleDocumentationProvider extends AbstractDocumentationProvi
         if (parameterList == null) {
             return false;
         }
-        PsiElement ruleParam = parameterList.getParameter("rule", RULE_POSITION);
+        PsiElement ruleParam = PsiElementUtils.getParameter(parameterList, "rule", RULE_POSITION);
         return ruleParam != null && PsiTreeUtil.isAncestor(ruleParam, literal, false);
     }
 

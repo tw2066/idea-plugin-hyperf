@@ -2,9 +2,11 @@ package com.base.idea.hyperf.util;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.PsiWhiteSpace;
 import com.jetbrains.php.lang.psi.elements.FunctionReference;
 import com.jetbrains.php.lang.psi.elements.ParameterList;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.utils.PhpElementsUtil;
@@ -75,6 +77,35 @@ public class PsiElementUtils {
         }
 
         return functionName.equals(((FunctionReference) functionCall).getName());
+    }
+
+    /**
+     * 命名参数优先、位置参数兜底，等价于平台内部 API {@code ParameterList#getParameter(String, int)}
+     * （该方法已标记 internal，插件验证器禁用，这里用公开 API 重写）。
+     * 命名参数的 {@code name:} 标签是参数值的前置兄弟节点（跳过空白/注释），非包裹结构。
+     */
+    @Nullable
+    public static PsiElement getParameter(@NotNull ParameterList parameterList, @NotNull String name, int index) {
+        for (PsiElement parameter : parameterList.getParameters()) {
+            PsiElement colon = prevSignificantSibling(parameter);
+            if (colon == null || !":".equals(colon.getText())) {
+                continue;
+            }
+            PsiElement nameIdentifier = prevSignificantSibling(colon);
+            if (nameIdentifier != null && name.equalsIgnoreCase(nameIdentifier.getText())) {
+                return parameter;
+            }
+        }
+        return parameterList.getParameter(index);
+    }
+
+    @Nullable
+    private static PsiElement prevSignificantSibling(@NotNull PsiElement element) {
+        PsiElement prev = element.getPrevSibling();
+        while (prev instanceof PsiWhiteSpace || prev instanceof PsiComment) {
+            prev = prev.getPrevSibling();
+        }
+        return prev;
     }
 
     /** 批量将 VirtualFile 转为 PsiFile（找不到的文件跳过） */

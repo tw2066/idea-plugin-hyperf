@@ -6,6 +6,7 @@ import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import com.intellij.util.io.VoidDataExternalizer;
+import com.base.idea.hyperf.util.HyperfRootUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,10 +16,11 @@ import java.util.Map;
 /**
  * .env 环境变量键的文件级索引。
  *
- * <p>只索引项目根目录下的一个 {@code .env} 文件（纯文本，非 PHP）：
+ * <p>只索引 Hyperf 应用根目录下的一个 {@code .env} 文件（纯文本，非 PHP）：
  * 优先 {@code .env}，若不存在则回退到第一个 {@code .env.*}（如 {@code .env.example}）。
  * 按行解析 {@code KEY=value}，将 KEY 写入索引，
  * 供 {@code EnvReferences} 做 {@code env()} 键的补全与跳转。
+ * 应用根由 {@link HyperfRootUtil} 解析，支持 Hyperf 在项目子目录的场景。
  *
  * @author NaiXiaoXin(SeanWang) <i@naixiaoxin.com>
  */
@@ -45,12 +47,12 @@ public class EnvKeyStubIndex extends FileBasedIndexExtension<String, Void> {
             final Map<String, Void> map = new HashMap<>();
 
             VirtualFile file = fileContent.getFile();
-            VirtualFile baseDir = fileContent.getProject().getBaseDir();
-            if (baseDir == null || file.getParent() == null || !file.getParent().equals(baseDir)) {
+            VirtualFile rootDir = HyperfRootUtil.resolve(fileContent.getProject());
+            if (rootDir == null || file.getParent() == null || !file.getParent().equals(rootDir)) {
                 return map;
             }
             // 只索引"优先选中的那一个" .env 文件
-            VirtualFile target = selectEnvFile(baseDir);
+            VirtualFile target = selectEnvFile(rootDir);
             if (target == null || !target.equals(file)) {
                 return map;
             }
@@ -134,9 +136,9 @@ public class EnvKeyStubIndex extends FileBasedIndexExtension<String, Void> {
         return true;
     }
 
-    /** 索引版本；结构变化时递增以触发重建（v2：只索引单一优先 .env 文件） */
+    /** 索引版本；结构变化时递增以触发重建（v3：索引位置从项目根改为 Hyperf 应用根） */
     @Override
     public int getVersion() {
-        return 2;
+        return 3;
     }
 }

@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'com.base.idea.hyperf'
-version '1.0.3'
+version '1.0.4'
 
 repositories {
     maven { url 'https://maven.aliyun.com/repository/public/' }
@@ -42,15 +42,17 @@ sourceSets {
     }
 }
 
+// 字节码按 17 出包：233~2024.2 的 IDE 跑在 JBR 17 上，toolchain(JDK 25) 仅作编译器。
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    options.release = 17
 }
 
 intellijPlatform {
     pluginConfiguration {
         name = 'Hyperf Base'
         ideaVersion {
-            sinceBuild = '262'
+            sinceBuild = '233'
         }
     }
     // 本地 JDK 25 不是 JetBrains Runtime，缺少 JBR 特有的 Packages 目录，插桩会报错。

@@ -11,6 +11,7 @@ import com.intellij.util.indexing.FileBasedIndex;
 import com.jetbrains.php.lang.psi.elements.ArrayHashElement;
 import com.jetbrains.php.lang.psi.elements.ClassConstantReference;
 import com.base.idea.hyperf.stub.DiBindingStubIndex;
+import com.base.idea.hyperf.util.HyperfRootUtil;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.utils.PhpElementsUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -145,8 +146,8 @@ public class DiBindingResolver {
 
     @NotNull
     private static synchronized Map<String, Integer> loadLockRank(@NotNull Project project) {
-        VirtualFile baseDir = project.getBaseDir();
-        VirtualFile lockFile = baseDir == null ? null : baseDir.findChild("composer.lock");
+        VirtualFile rootDir = HyperfRootUtil.resolve(project);
+        VirtualFile lockFile = rootDir == null ? null : rootDir.findChild("composer.lock");
         if (lockFile == null) {
             return Collections.emptyMap();
         }

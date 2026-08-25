@@ -1,6 +1,11 @@
 # Changelog
 
 本插件所有版本的显著变更。格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
+## [1.0.4]
+
+### 新增
+
+- XXL-JOB 标记运行：`#[XxlJob]` 注解的 Job 类（实现 JobHandlerInterface）/方法名旁运行按钮，点击弹窗输入 `--params` 后在 Terminal 执行 `execute:xxl-job --handler=<name>`（需安装 hyperf/xxl-job-incubator）
 
 ## [1.0.3]
 
@@ -20,6 +25,7 @@
 ### 修复
 
 - 项目在 WSL 文件系统时，菜单命令的 UNC 脚本路径转换
+- 替换平台 internal API 调用（`ParameterList.getParameter(String, int)`），消除 Marketplace 验证告警
 
 ## [1.0.2]
 

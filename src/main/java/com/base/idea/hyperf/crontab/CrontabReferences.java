@@ -15,6 +15,7 @@ import com.jetbrains.php.lang.psi.elements.PhpClass;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
 import com.base.idea.hyperf.HyperfIcons;
 import com.base.idea.hyperf.HyperfStartupActivity;
+import com.base.idea.hyperf.util.PsiElementUtils;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionLanguageRegistrar;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionProvider;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionRegistrarParameter;
@@ -73,7 +74,7 @@ public class CrontabReferences implements GotoCompletionLanguageRegistrar {
         if (parameterList == null) {
             return false;
         }
-        PsiElement callbackParam = parameterList.getParameter("callback", CALLBACK_POSITION);
+        PsiElement callbackParam = PsiElementUtils.getParameter(parameterList, "callback", CALLBACK_POSITION);
         return callbackParam != null && PsiTreeUtil.isAncestor(callbackParam, literal, false);
     }
 

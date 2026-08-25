@@ -20,6 +20,7 @@ import com.base.idea.hyperf.HyperfSettings;
 import com.base.idea.hyperf.stub.TranslationKeyStubIndex;
 import com.base.idea.hyperf.stub.processor.CollectProjectUniqueKeys;
 import com.base.idea.hyperf.util.ArrayReturnPsiRecursiveVisitor;
+import com.base.idea.hyperf.util.HyperfRootUtil;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionLanguageRegistrar;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionProvider;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionRegistrarParameter;
@@ -60,12 +61,12 @@ public class TranslationReferences implements GotoCompletionLanguageRegistrar {
                 return null;
             }
             // only install hyperf/translation
-            // 未安装翻译组件则不提供翻译键功能
-            VirtualFile baseDir = psiElement.getProject().getBaseDir();
-            if (baseDir == null) {
+            // 未安装翻译组件则不提供翻译键功能（组件目录基于 Hyperf 应用根探测，支持应用在子目录的场景）
+            VirtualFile rootDir = HyperfRootUtil.resolve(psiElement.getProject());
+            if (rootDir == null) {
                 return null;
             }
-            if (VfsUtil.findRelativeFile(baseDir, "vendor", "hyperf", "translation") == null
+            if (VfsUtil.findRelativeFile(rootDir, "vendor", "hyperf", "translation") == null
             ) {
                 return null;
             }

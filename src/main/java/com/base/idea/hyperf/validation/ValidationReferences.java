@@ -22,6 +22,7 @@ import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
 import com.base.idea.hyperf.HyperfIcons;
 import com.base.idea.hyperf.HyperfSettings;
 import com.base.idea.hyperf.HyperfStartupActivity;
+import com.base.idea.hyperf.util.HyperfRootUtil;
 import fr.adrienbrault.idea.symfony2plugin.Symfony2InterfacesUtil;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionLanguageRegistrar;
 import fr.adrienbrault.idea.symfony2plugin.codeInsight.GotoCompletionProvider;
@@ -204,10 +205,11 @@ public class ValidationReferences implements GotoCompletionLanguageRegistrar {
                 return null;
             }
             // 未安装验证组件则不提供功能（hyperf/dto 的验证注解复用同一套规则，装了 dto 也放行）
-            VirtualFile baseDir = psiElement.getProject().getBaseDir();
-            if (baseDir == null
-                    || (VfsUtil.findRelativeFile(baseDir, "vendor", "hyperf", "validation") == null
-                        && VfsUtil.findRelativeFile(baseDir, "vendor", "hyperf", "dto") == null)) {
+            // 组件目录基于 Hyperf 应用根探测，支持应用在子目录的场景
+            VirtualFile rootDir = HyperfRootUtil.resolve(psiElement.getProject());
+            if (rootDir == null
+                    || (VfsUtil.findRelativeFile(rootDir, "vendor", "hyperf", "validation") == null
+                        && VfsUtil.findRelativeFile(rootDir, "vendor", "hyperf", "dto") == null)) {
                 return null;
             }
 
