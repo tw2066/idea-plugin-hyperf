@@ -4,11 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-PhpStorm 插件，为 [Hyperf](https://www.hyperf.io) PHP 框架提供 IDE 支持：路由 Controller 补全/跳转、`config()` 配置键索引/补全/跳转、`trans()` 翻译键索引/补全/跳转、`.env` 环境变量补全/跳转、验证规则补全与悬停中文文档。目标平台为 **PhpStorm 2026.2（PS-262）**，`since-build = 262`，仅支持 2026.x，不向后兼容旧 IDE。
+PhpStorm 插件，为 [Hyperf](https://www.hyperf.io) PHP 框架提供 IDE 支持：路由 Controller 补全/跳转、`config()` 配置键索引/补全/跳转、`trans()` 翻译键索引/补全/跳转、`.env` 环境变量补全/跳转、验证规则补全与悬停中文文档。编译/沙箱目标平台为 **PhpStorm 2026.2（PS-262）**，兼容范围 `since-build = 233`（单一产物覆盖 **2023.3～2026.x**；233 是 IntelliJ Platform Gradle Plugin 2.x 当前支持的最低平台版本）。
 
 ## 构建与运行
 
 必须使用 **JDK 25**（2026.2 平台类以 Java 25 编译，用更低版本会报 `类文件具有错误的版本 69.0`）。本机 JDK 25 路径：`D:\Program Files\PhpWebStudy-Data\app\openjdk-25.0.4`。
+
+**产物字节码固定为 17**（build.gradle 中 `options.release = 17`）：233～2024.2 的 IDE 跑 JBR 17，JDK 25 仅作编译器。这同时保证代码不引用 JDK 21/25 才有的 API。修改代码时不得引入 JDK 18+ 的 JDK API（否则 `--release 17` 编译报错，天然拦截）。验证旧平台兼容用 `-PideaVersion=2023.3 compileJava`（命令行 -P 覆盖 gradle.properties 的 ideaVersion，会下载 PS 2023.3 SDK）。
 
 所有 Gradle 命令都需通过 `-Dorg.gradle.java.home` 指定 JDK 25 作为 Gradle JVM：
 

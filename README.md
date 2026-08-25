@@ -4,7 +4,7 @@
 
 > **Fork 声明**：本项目 fork 自 [qiqizjl/idea-plugin-hyperf](https://github.com/qiqizjl/idea-plugin-hyperf)，原作者为 NaiXiaoXin（SeanWang）。本 fork 在原项目基础上进行了 Hyperf 3.x 适配（`@method` 魔术 Router、3.1+ 点号配置文件）、新增 `.env` 环境变量键补全跳转，并更名为 **hyperf base** 独立发布。原项目未声明开源许可证，本 fork 保留原作者署名与核心框架代码。
 
-目标平台为 **PhpStorm 2026.2（PS-262）**，`since-build = 262`，仅支持 2026.x。
+兼容 **PhpStorm 2023.3 及以上**（`since-build = 233`，含 2026.2），开发与沙箱目标为 **PhpStorm 2026.2（PS-262）**。
 
 ## 功能
 

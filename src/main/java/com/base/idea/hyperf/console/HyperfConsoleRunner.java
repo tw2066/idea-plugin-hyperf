@@ -4,17 +4,19 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.terminal.ui.TerminalWidget;
 import com.base.idea.hyperf.util.HyperfRootUtil;
 import com.base.idea.hyperf.util.IdeHelper;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.terminal.ShellTerminalWidget;
 import org.jetbrains.plugins.terminal.TerminalToolWindowManager;
+
+import java.io.IOException;
 
 /**
  * Hyperf 命令执行器：拼装 {@code php bin/hyperf.php <args>} 并在内置 Terminal 新 tab 中执行。
  *
- * <p>用 {@code createShellWidget(null, ...)} 拿到 {@link TerminalWidget} 接口 +
- * {@code sendCommandToExecute}，对新旧两套终端引擎（classic / reworked）都有效。
+ * <p>用 createLocalShellWidget + executeCommand：233～262 都有的公共 API；
+ * createShellWidget / TerminalWidget.sendCommandToExecute 在 233 不存在。
  */
 public class HyperfConsoleRunner {
 
@@ -39,9 +41,13 @@ public class HyperfConsoleRunner {
         String fullCommand = quote(phpPath) + " " + quote(scriptPath) + " " + commandLine;
 
         ApplicationManager.getApplication().invokeLater(() -> {
-            TerminalWidget widget = TerminalToolWindowManager.getInstance(project)
-                    .createShellWidget(null, basePath, true, true);
-            widget.sendCommandToExecute(fullCommand);
+            ShellTerminalWidget widget = TerminalToolWindowManager.getInstance(project)
+                    .createLocalShellWidget(basePath, "Hyperf", true, true);
+            try {
+                widget.executeCommand(fullCommand);
+            } catch (IOException e) {
+                IdeHelper.notifyWarning(project, "Terminal 命令执行失败: " + e.getMessage());
+            }
         });
     }
 
