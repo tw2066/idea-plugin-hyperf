@@ -1,6 +1,12 @@
 # Changelog
 
 本插件所有版本的显著变更。格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
+## [1.0.5]
+
+### 优化
+
+- 命令执行 Terminal 页签复用：菜单命令、命令行标记、XXL-JOB 标记执行时，已有 "Hyperf" 页签空闲则在其中执行（不再每次开新页签）；页签被关闭或 shell 忙（如 start 常驻进程）时开新页签
+
 ## [1.0.4]
 
 ### 新增
