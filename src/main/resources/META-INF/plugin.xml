@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.base.idea.hyperf</id>
     <name>Hyperf Base</name>
-    <vendor email="tw2066@163.com" url="https://github.com/tw2066">Mr.tang</vendor>
+    <vendor email="tw2066@163.com" url="https://github.com/tw2066/idea-plugin-hyperf">Mr.tang</vendor>
 
     <description><![CDATA[
       Hyperf Base provides IDE support for the Hyperf PHP framework in PhpStorm, including route controller completion &amp; navigation, config key indexing, translation key indexing, environment variable completion, and validation rule completion &amp; hover docs.
