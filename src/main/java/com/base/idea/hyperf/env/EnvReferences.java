@@ -76,7 +76,7 @@ public class EnvReferences implements GotoCompletionLanguageRegistrar {
             CollectProjectUniqueKeys processor = new CollectProjectUniqueKeys(getProject(), EnvKeyStubIndex.KEY);
             FileBasedIndex.getInstance().processAllKeys(EnvKeyStubIndex.KEY, processor, getProject());
             for (String key : processor.getResult()) {
-                lookupElements.add(LookupElementBuilder.create(key).withIcon(HyperfIcons.CONFIG));
+                lookupElements.add(LookupElementBuilder.create(key).withIcon(HyperfIcons.ENV));
             }
             return lookupElements;
         }
