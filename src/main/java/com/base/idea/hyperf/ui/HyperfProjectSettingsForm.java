@@ -35,6 +35,7 @@ public class HyperfProjectSettingsForm implements Configurable {
     private JTextField textTranslationLang;
     private JTextField textTranslationPath;
     private JTextField textPhpBinaryPath;
+    private JTextField textHttpJsonPath;
 
     public HyperfProjectSettingsForm(@NotNull final Project project) {
         this.project = project;
@@ -66,8 +67,10 @@ public class HyperfProjectSettingsForm implements Configurable {
         textTranslationPath = new JTextField();
         textTranslationLang = new JTextField();
         textPhpBinaryPath = new JTextField();
+        textHttpJsonPath = new JTextField();
         textTranslationLang.setToolTipText("If you have more than one language in project, this one will be first in \"Go to\" translation options");
         textPhpBinaryPath.setToolTipText("PHP executable for Hyperf menu commands. Empty = project CLI interpreter, then php from PATH");
+        textHttpJsonPath.setToolTipText("apidocs http.json path. Empty = <app root>/runtime/container/http.json; absolute or relative to app root");
 
         // 字段区：GridBagLayout，标签列 + 输入列
         JPanel fields = new JPanel(new GridBagLayout());
@@ -98,10 +101,15 @@ public class HyperfProjectSettingsForm implements Configurable {
         fields.add(new JLabel("PHP Binary Path"), label);
         fields.add(textPhpBinaryPath, field);
 
+        label.gridy = 3;
+        field.gridy = 3;
+        fields.add(new JLabel("Http Json Path"), label);
+        fields.add(textHttpJsonPath, field);
+
         // 垂直弹簧，把内容顶到面板上方
         GridBagConstraints glue = new GridBagConstraints();
         glue.gridx = 0;
-        glue.gridy = 3;
+        glue.gridy = 4;
         glue.gridwidth = 2;
         glue.weighty = 1.0;
         glue.fill = GridBagConstraints.VERTICAL;
@@ -129,7 +137,8 @@ public class HyperfProjectSettingsForm implements Configurable {
                 || menuEnabled.isSelected() != getSettings().menuEnabled
                 || !textTranslationLang.getText().equals(getSettings().translationLang)
                 || !textTranslationPath.getText().equals(getSettings().translationPath)
-                || !textPhpBinaryPath.getText().equals(getSettings().phpBinaryPath);
+                || !textPhpBinaryPath.getText().equals(getSettings().phpBinaryPath)
+                || !textHttpJsonPath.getText().equals(getSettings().httpJsonPath);
     }
 
     /** Apply 按钮：把界面值写回持久化设置 */
@@ -142,6 +151,7 @@ public class HyperfProjectSettingsForm implements Configurable {
         getSettings().translationLang = textTranslationLang.getText();
         getSettings().translationPath = textTranslationPath.getText();
         getSettings().phpBinaryPath = textPhpBinaryPath.getText().trim();
+        getSettings().httpJsonPath = textHttpJsonPath.getText().trim();
     }
 
     /** Reset 按钮：用持久化值刷新界面 */
@@ -162,6 +172,7 @@ public class HyperfProjectSettingsForm implements Configurable {
         textTranslationLang.setText(getSettings().translationLang);
         textTranslationPath.setText(getSettings().translationPath);
         textPhpBinaryPath.setText(getSettings().phpBinaryPath);
+        textHttpJsonPath.setText(getSettings().httpJsonPath);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.base.idea.hyperf;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.util.IconLoader;
 
 import javax.swing.*;
@@ -24,5 +25,7 @@ public class HyperfIcons {
     public static final Icon VIEW = IconLoader.getIcon("/icons/icon.png", HyperfIcons.class);
     /** 缓存监听器名补全图标 */
     public static final Icon CACHE_LISTENER = IconLoader.getIcon("/icons/config.png", HyperfIcons.class);
+    /** API 路由方法 gutter 图标(平台地球图标,同 IDEA Web 服务映射) */
+    public static final Icon API = AllIcons.General.Web;
 
 }

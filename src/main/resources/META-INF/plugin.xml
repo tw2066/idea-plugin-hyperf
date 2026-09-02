@@ -43,6 +43,8 @@
                 implementationClass="com.base.idea.hyperf.command.CommandRunLineMarkerContributor"/>
         <runLineMarkerContributor language="PHP"
                 implementationClass="com.base.idea.hyperf.xxljob.XxlJobRunLineMarkerContributor"/>
+        <codeInsight.lineMarkerProvider language="PHP"
+                implementationClass="com.base.idea.hyperf.apidoc.ApiRouteLineMarkerProvider"/>
         <lang.documentationProvider language="PHP"
                 implementationClass="com.base.idea.hyperf.validation.ValidationDocumentationProvider"/>
         <lang.documentationProvider language="PHP" order="first"
@@ -51,12 +53,14 @@
                 implementationClass="com.base.idea.hyperf.di.DiBindingDocumentationProvider"/>
 
         <projectService serviceImplementation="com.base.idea.hyperf.HyperfSettings"/>
+        <projectService serviceImplementation="com.base.idea.hyperf.apidoc.ApiDocService"/>
         <fileBasedIndex implementation="com.base.idea.hyperf.stub.ConfigKeyStubIndex"/>
         <fileBasedIndex implementation="com.base.idea.hyperf.stub.TranslationKeyStubIndex"/>
         <fileBasedIndex implementation="com.base.idea.hyperf.stub.EnvKeyStubIndex"/>
         <fileBasedIndex implementation="com.base.idea.hyperf.stub.CacheListenerStubIndex"/>
         <fileBasedIndex implementation="com.base.idea.hyperf.stub.DiBindingStubIndex"/>
         <postStartupActivity implementation="com.base.idea.hyperf.HyperfStartupActivity"/>
+        <searchEverywhereContributor implementation="com.base.idea.hyperf.apidoc.ApiRouteSearchEverywhereContributor$Factory"/>
         <notificationGroup id="hyperf base" displayType="BALLOON"/>
     </extensions>
 
