@@ -1,6 +1,6 @@
 # IntelliJ IDEA / PhpStorm Hyperf Plugin
 
-为 [Hyperf](https://www.hyperf.io) PHP 框架提供 IDE 支持的 PhpStorm 插件，支持路由、配置、翻译、环境变量、验证规则、视图模板、AOP 切面、缓存监听器的补全与跳转，以及代码生成与常用命令的快捷菜单。
+为 [Hyperf](https://www.hyperf.io) PHP 框架提供 IDE 支持的 PhpStorm 插件，支持路由、配置、翻译、环境变量、验证规则、视图模板、AOP 切面、缓存监听器的补全与跳转，API 路由（apidocs）搜索与请求生成，以及代码生成与常用命令的快捷菜单。
 
 > **Fork 声明**：本项目 fork 自 [qiqizjl/idea-plugin-hyperf](https://github.com/qiqizjl/idea-plugin-hyperf)，原作者为 NaiXiaoXin（SeanWang）。本 fork 在原项目基础上进行了 Hyperf 3.x 适配（`@method` 魔术 Router、3.1+ 点号配置文件）、新增 `.env` 环境变量键补全跳转，并更名为 **hyperf base** 独立发布。原项目未声明开源许可证，本 fork 保留原作者署名与核心框架代码。
 
@@ -13,6 +13,10 @@
   - `Router::addRoute([...], '/path', 'App\Controller\X@y')`
   - 兼容 Hyperf 3.2 的 `@method static` 魔术方法 Router 写法
   - 补全列表来自 `\App\Controller` 命名空间下所有控制器的 public action
+- **API 路由**（apidocs，路由搜索 + 生成 HTTP 请求）：
+  - 需安装 [tw2066/api-docs](https://github.com/tw2066/api-docs) 组件，解析其生成的 `runtime/container/http.json`（OpenAPI 3.0，文件路径可在设置页配置）
+  - Search Everywhere（双击 Shift）新增 **Routes** 标签页：按路由路径/方法名过滤，回车跳转到 `x-code-path` 指向的控制器方法
+  - 路由方法名旁显示 API 图标，点击生成 `POST http://host/path` 请求行并追加到 Scratches 下 `<控制器名>.http`（HTTP Client 格式，右侧拆分打开）；一个方法对应多个路由时弹列表选择
 - **配置键**（索引、补全与跳转）：
   - 全局 `config('key')` 辅助函数
   - `\Hyperf\Contract\ConfigInterface::get()/has()` 方法调用
