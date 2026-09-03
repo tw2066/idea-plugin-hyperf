@@ -1,7 +1,6 @@
 package com.base.idea.hyperf.apidoc;
 
 import com.base.idea.hyperf.util.IdeHelper;
-import com.intellij.ide.actions.OpenInRightSplitAction;
 import com.intellij.ide.scratch.ScratchFileService;
 import com.intellij.ide.scratch.ScratchRootType;
 import com.intellij.openapi.application.ApplicationManager;
@@ -15,6 +14,7 @@ import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.SwingConstants;
 import java.io.IOException;
 
 /**
@@ -52,11 +52,40 @@ public final class ApiRequestScratchWriter {
                 descriptor.navigate(true);
                 return;
             }
-            var window = OpenInRightSplitAction.Companion.openInRightSplit(project, file, descriptor, true);
-            if (window == null) {
+            if (!openInRightSplit(project, descriptor)) {
                 descriptor.navigate(true);
             }
         });
+    }
+
+    /**
+     * 在右侧拆分窗格打开文件并定位到 descriptor 偏移。
+     * 平台未提供公共的右拆分 API（OpenInRightSplitAction 为 internal），
+     * 用 EditorWindow.split + setCurrentWindow 复刻：已有其他窗格则切过去打开，否则垂直拆分当前窗格。
+     *
+     * @return 是否已在右窗格打开；false 时调用方回退普通打开
+     */
+    private static boolean openInRightSplit(@NotNull Project project, @NotNull OpenFileDescriptor descriptor) {
+        FileEditorManagerEx fem = (FileEditorManagerEx) FileEditorManager.getInstance(project);
+        EditorWindow current = fem.getCurrentWindow();
+        if (current == null) {
+            return false;
+        }
+        VirtualFile file = descriptor.getFile();
+        for (EditorWindow window : fem.getWindows()) {
+            if (window != current) {
+                fem.setCurrentWindow(window);
+                descriptor.navigate(true);
+                return true;
+            }
+        }
+        // 无右窗格：垂直拆分当前窗格（focusNew=true 使新窗格成为当前窗格，navigate 落在新窗格）
+        EditorWindow right = current.split(SwingConstants.VERTICAL, true, file, true);
+        if (right == null) {
+            return false;
+        }
+        descriptor.navigate(true);
+        return true;
     }
 
     /** 文件是否已在右侧拆分窗格中打开(与当前窗格不同组) */
