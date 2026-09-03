@@ -1,7 +1,6 @@
 package com.base.idea.hyperf.command;
 
 import com.intellij.execution.lineMarker.RunLineMarkerContributor;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -15,6 +14,7 @@ import com.jetbrains.php.lang.psi.elements.PhpAttribute;
 import com.jetbrains.php.lang.psi.elements.PhpClass;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
 import com.base.idea.hyperf.HyperfStartupActivity;
+import com.base.idea.hyperf.HyperfIcons;
 import com.base.idea.hyperf.console.HyperfConsoleRunner;
 import com.base.idea.hyperf.util.PsiElementUtils;
 import fr.adrienbrault.idea.symfony2plugin.Symfony2InterfacesUtil;
@@ -57,7 +57,7 @@ public class CommandRunLineMarkerContributor extends RunLineMarkerContributor {
         }
         boolean withArgs = hasParameters(phpClass);
         return new Info(
-                AllIcons.RunConfigurations.TestState.Run,
+                HyperfIcons.RUN,
                 new AnAction[]{new RunCommandAction(project, commandName, withArgs)},
                 e -> "Run command '" + commandName + "'"
         );

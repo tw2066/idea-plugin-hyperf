@@ -48,6 +48,9 @@ public class HyperfSettings implements PersistentStateComponent<HyperfSettings> 
     /** PHP 可执行文件路径（留空则依次回退：项目 CLI 解释器 → PATH 中的 php） */
     public String phpBinaryPath = "";
 
+    /** apidocs 生成的 http.json 路径（留空 = 应用根 runtime/container/http.json；支持绝对路径或相对应用根） */
+    public String httpJsonPath = "";
+
 
     public static HyperfSettings getInstance(@NotNull Project project) {
         return project.getService(HyperfSettings.class);

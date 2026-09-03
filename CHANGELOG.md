@@ -3,6 +3,11 @@
 本插件所有版本的显著变更。格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 ## [1.0.5]
 
+### 新增
+
+- API 路由(apidocs):解析 `runtime/container/http.json`(可在设置页配置路径),Search Everywhere 新增 "Routes" 标签页,按路由/方法名搜索并跳转到 `x-code-path` 指向的控制器方法
+- API 路由标记:路由方法名旁显示 API 图标,点击生成 `POST http://host/path` 请求并追加到 Scratches 下 `<控制器名>.http`(HTTP Client 格式);一个方法对应多个路由时弹出列表选择
+
 ### 优化
 
 - 命令执行 Terminal 页签复用：菜单命令、命令行标记、XXL-JOB 标记执行时，已有 "Hyperf" 页签空闲则在其中执行（不再每次开新页签）；页签被关闭或 shell 忙（如 start 常驻进程）时开新页签

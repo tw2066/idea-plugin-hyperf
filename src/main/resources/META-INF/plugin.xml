@@ -12,6 +12,7 @@
       <h2>功能特性</h2>
       <ul>
         <li><b>路由</b>：<code>Router::get/post/put/patch/delete/options/addRoute</code> 的控制器补全与跳转 —— 兼容 Hyperf 3.x 的 <code>@method</code> 魔术 Router 写法</li>
+        <li><b>API 路由</b>：Search Everywhere 新增 "Routes" 标签页搜索路由并跳转控制器方法；路由方法名旁 API 图标点击生成 HTTP Client 请求到 Scratch 文件 —— 需安装 <a href="https://github.com/tw2066/api-docs">tw2066/api-docs</a> 组件生成 <code>runtime/container/http.json</code></li>
         <li><b>配置</b>：<code>config()</code> / <code>ConfigInterface::get/has</code> 配置键的索引、补全与跳转 —— 支持 Hyperf 3.1+ 的点号配置文件（<code>sub/a.php</code> → <code>sub.a</code>，<code>a.b.php</code> → <code>a.b</code>）</li>
         <li><b>翻译</b>：<code>trans()</code> / <code>__()</code> / <code>TranslatorInterface::trans()</code> 翻译键的索引、补全与跳转（需安装 hyperf/translation）</li>
         <li><b>环境变量</b>：<code>env()</code> 环境变量键的补全与跳转（读取项目根目录 <code>.env</code> 文件）</li>
@@ -43,6 +44,10 @@
                 implementationClass="com.base.idea.hyperf.command.CommandRunLineMarkerContributor"/>
         <runLineMarkerContributor language="PHP"
                 implementationClass="com.base.idea.hyperf.xxljob.XxlJobRunLineMarkerContributor"/>
+        <codeInsight.lineMarkerProvider language="PHP"
+                implementationClass="com.base.idea.hyperf.apidoc.ApiRouteLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="PHP"
+                implementationClass="com.base.idea.hyperf.di.DiBindingLineMarkerProvider"/>
         <lang.documentationProvider language="PHP"
                 implementationClass="com.base.idea.hyperf.validation.ValidationDocumentationProvider"/>
         <lang.documentationProvider language="PHP" order="first"
@@ -51,12 +56,14 @@
                 implementationClass="com.base.idea.hyperf.di.DiBindingDocumentationProvider"/>
 
         <projectService serviceImplementation="com.base.idea.hyperf.HyperfSettings"/>
+        <projectService serviceImplementation="com.base.idea.hyperf.apidoc.ApiDocService"/>
         <fileBasedIndex implementation="com.base.idea.hyperf.stub.ConfigKeyStubIndex"/>
         <fileBasedIndex implementation="com.base.idea.hyperf.stub.TranslationKeyStubIndex"/>
         <fileBasedIndex implementation="com.base.idea.hyperf.stub.EnvKeyStubIndex"/>
         <fileBasedIndex implementation="com.base.idea.hyperf.stub.CacheListenerStubIndex"/>
         <fileBasedIndex implementation="com.base.idea.hyperf.stub.DiBindingStubIndex"/>
         <postStartupActivity implementation="com.base.idea.hyperf.HyperfStartupActivity"/>
+        <searchEverywhereContributor implementation="com.base.idea.hyperf.apidoc.ApiRouteSearchEverywhereContributor$Factory"/>
         <notificationGroup id="hyperf base" displayType="BALLOON"/>
     </extensions>
 

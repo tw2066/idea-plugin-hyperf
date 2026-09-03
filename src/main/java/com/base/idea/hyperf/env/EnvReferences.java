@@ -68,7 +68,10 @@ public class EnvReferences implements GotoCompletionLanguageRegistrar {
             super(element);
         }
 
-        /** 从索引收集所有 .env 键，生成补全列表 */
+        /** 补全项尾部展示的变量值最大长度，超出截断 */
+        private static final int VALUE_DISPLAY_MAX = 50;
+
+        /** 从索引收集所有 .env 键（含值），生成补全列表 */
         @NotNull
         @Override
         public Collection<LookupElement> getLookupElements() {
@@ -76,9 +79,28 @@ public class EnvReferences implements GotoCompletionLanguageRegistrar {
             CollectProjectUniqueKeys processor = new CollectProjectUniqueKeys(getProject(), EnvKeyStubIndex.KEY);
             FileBasedIndex.getInstance().processAllKeys(EnvKeyStubIndex.KEY, processor, getProject());
             for (String key : processor.getResult()) {
-                lookupElements.add(LookupElementBuilder.create(key).withIcon(HyperfIcons.CONFIG));
+                LookupElementBuilder builder = LookupElementBuilder.create(key).withIcon(HyperfIcons.ENV);
+                String value = getIndexedValue(key);
+                if (!value.isEmpty()) {
+                    if (value.length() > VALUE_DISPLAY_MAX) {
+                        value = value.substring(0, VALUE_DISPLAY_MAX) + "…";
+                    }
+                    builder = builder.withTailText(" = " + value, true);
+                }
+                lookupElements.add(builder);
             }
             return lookupElements;
+        }
+
+        /** 取该键在索引中的第一个值；无值返回空串 */
+        @NotNull
+        private String getIndexedValue(@NotNull String key) {
+            Collection<String> values = FileBasedIndex.getInstance().getValues(
+                    EnvKeyStubIndex.KEY, key, GlobalSearchScope.allScope(getProject()));
+            for (String value : values) {
+                return value == null ? "" : value;
+            }
+            return "";
         }
 
         /** 定位含该键的 .env 文件，跳到键所在行的行首元素 */

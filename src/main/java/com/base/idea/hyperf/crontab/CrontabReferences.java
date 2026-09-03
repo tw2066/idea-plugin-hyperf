@@ -98,7 +98,7 @@ public class CrontabReferences implements GotoCompletionLanguageRegistrar {
                 if (method.getName().startsWith("__")) {
                     continue;
                 }
-                lookupElements.add(LookupElementBuilder.create(method.getName()).withIcon(HyperfIcons.CONTROLLER));
+                lookupElements.add(LookupElementBuilder.create(method.getName()).withIcon(HyperfIcons.CRONTAB));
             }
             return lookupElements;
         }
