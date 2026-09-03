@@ -52,7 +52,7 @@ public class HyperfConsoleRunner {
         ApplicationManager.getApplication().invokeLater(() -> {
             TerminalToolWindowManager manager = TerminalToolWindowManager.getInstance(project);
             ShellTerminalWidget widget = project.getUserData(HYPERF_TAB_KEY);
-            if (widget == null || !manager.getWidgets().contains(widget)) {
+            if (widget == null || !isTabAlive(manager, widget)) {
                 runInNewTab(project, manager, basePath, fullCommand);
                 return;
             }
@@ -70,7 +70,7 @@ public class HyperfConsoleRunner {
             boolean busy = isBusy(widget);
             ApplicationManager.getApplication().invokeLater(() -> {
                 TerminalToolWindowManager manager = TerminalToolWindowManager.getInstance(project);
-                if (busy || !manager.getWidgets().contains(widget)) {
+                if (busy || !isTabAlive(manager, widget)) {
                     runInNewTab(project, manager, basePath, fullCommand);
                     return;
                 }
@@ -87,6 +87,23 @@ public class HyperfConsoleRunner {
         } catch (IllegalStateException e) {
             return false;
         }
+    }
+
+    /**
+     * widget 对应的 tab 是否仍在 Terminal 工具窗中。
+     * getWidgets() 是 internal API，改用遍历 content 反查（与 activateTab 同一路径）。
+     */
+    private static boolean isTabAlive(@NotNull TerminalToolWindowManager manager, @NotNull ShellTerminalWidget widget) {
+        ToolWindow toolWindow = manager.getToolWindow();
+        if (toolWindow == null) {
+            return false;
+        }
+        for (Content content : toolWindow.getContentManager().getContents()) {
+            if (TerminalToolWindowManager.getWidgetByContent(content) == widget) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void runInNewTab(@NotNull Project project, @NotNull TerminalToolWindowManager manager,
